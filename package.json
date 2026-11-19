@@ -1,1 +1,16 @@
-{"name":"lunar-evacuation-race","version":"0.1.0","private":true,"type":"module","scripts":{"dev":"node server.mjs","start":"node server.mjs","test":"node --test tests/*.test.mjs"}}
+{
+  "name": "lunar-evacuation-race",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "assets:routes": "node tools/export_routes.mjs",
+    "vendor": "node tools/vendor_three.mjs"
+  },
+  "dependencies": {
+    "three": "0.180.0"
+  }
+}

@@ -1,6 +1,6 @@
 # Asset provenance
 
-`dist/assets/moon-terrain.png` was generated with the built-in image_gen tool for this project. The supplied 3.gif inspired the lunar industrial direction but is not included in this repository. Roads, rover bodies, beacons, gates, ships, rocks and visual feedback are drawn by Canvas code.
+`dist/assets/moon-terrain.png` was generated with the built-in image_gen tool for this project. The supplied 3.gif inspired the lunar industrial direction but is not included in this repository. This is the archived V0.1 background; V0.3 uses modeled terrain and no photographic background.
 
 ## Final generation prompt
 
@@ -8,8 +8,24 @@ Use case: stylized-concept. Asset type: top-down videogame moon terrain backgrou
 
 ## Tire-track sprite
 
-`dist/assets/tire-tracks.png` derives from the two-strip chevron tread image supplied by the user. The source had an opaque checkerboard background. The built-in image_gen tool produced the transparent-background version; this is a generated cleanup, not a pixel-exact extraction. The game crops and rotates this sprite into decals behind each rover along its actual traveled path. Track history is shared with the ground display and cleared on reset.
+`dist/assets/tire-tracks.png` derives from the two-strip chevron tread image supplied by the user. The source had an opaque checkerboard background. The built-in image_gen tool produced the transparent-background version; this is a generated cleanup, not a pixel-exact extraction. The V0.1 game cropped and rotated this sprite into decals. V0.3 uses instanced geometric chevrons along the actual traveled path. Track history is shared with the ground display and cleared on reset.
 
 Final edit prompt:
 
 Use case: background-extraction. Edit the attached tire-track sprite. Remove all white and pale grey checkerboard background pixels and replace background with actual transparent alpha, including the gap between the two tracks. Preserve the two original straight parallel vertical narrow dusty grey-brown chevron tire tread strips, their original spacing, their small repeated V-shaped tread pattern, weathered granular texture, shaded edges and orthographic overhead view. No invented objects. No text. No ground or checkerboard baked into output. Keep the original composition and aspect ratio: two long thin vertical strips at approximately x=29% and x=61% of the canvas, running almost from top to bottom, approximately 6% of canvas width per strip. Tight clean transparent cutout suitable for a game sprite. Do not turn it into rubber tires or thick tank tracks. Output transparent PNG.
+
+## Blender model assets and card animation (V0.2)
+
+`lander.png`, `rover-blue.png`, `rover-gold.png` and `meteorite.png` are transparent renders of locally authored Blender models. Their editable `.blend` sources, GLB exports and Python reconstruction scripts are included. These files were produced with Blender, not image generation. The showcase GIF is encoded from Blender-rendered frames.
+
+`card-reference.png` is the card front/back screenshot supplied by the user. Both Blender UVs and browser CSS sample its card regions directly: front `(161,171,518,777)`, back `(1005,171,518,777)` within the original 1752×1024 image. The card's words and pictured QR code are retained from the supplied artwork. The game does not use the QR image for recognition.
+
+## Full 3D scene (V0.3)
+
+`tools/build_world.py` creates the crater heightfield, basalt debris, solid road ribbons, infrastructure, 40 fracture blocks, detailed landers and two six-wheel science rovers in local Blender. `art/lunar-world.blend` is the editable master. Runtime models are `lunar-world.glb`, `science-rover-blue.glb`, `science-rover-gold.glb`, `landers-detailed.glb` and `meteorite.glb`. Materials are procedural or authored colors; no Hyper3D or downloaded third-party mesh is used.
+
+`art/moonquake.blend` and `dist/assets/moonquake.gif` show keyframed fracture blocks, a sinking road and modeled ejecta. `art/rover-detail.png` is a Blender render. Build and GIF encoding scripts are included.
+
+The supplied card artwork (including its QR code) and derived animation were explicitly approved by the user for public publication to TeresaPeng-zju/lunar-evacuation-race and its demo website on 2026-11-19. This records publication authorization, not a claim that the original artwork is newly authored by this project.
+
+Three.js 0.180.0 is vendored under its MIT license at `dist/vendor/three/LICENSE`. The card uses the exact reference crop coordinates as mesh UV transforms in `dist/world.js`.

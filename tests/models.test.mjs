@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+function glb(name){const b=readFileSync(new URL('../dist/assets/models/'+name+'.glb',import.meta.url));assert.equal(b.readUInt32LE(0),0x46546c67);assert.equal(b.readUInt32LE(4),2);assert.equal(b.readUInt32LE(8),b.length);return JSON.parse(b.subarray(20,20+b.readUInt32LE(12)).toString());}
+test('world exports terrain geometry, solid routes and forty individually movable fault blocks',()=>{const g=glb('lunar-world');const names=g.nodes.map(n=>n.name);assert.equal(names.filter(n=>n.startsWith('fracture_')).length,40);for(const id of [0,1])for(const key of ['start','common','safeRock','riskRock','stable','collapse'])assert(names.includes(`road_${id}_${key}`));const terrain=g.nodes.find(n=>n.name.startsWith('Terrain'));const primitive=g.meshes[terrain.mesh].primitives[0];assert(g.accessors[primitive.attributes.POSITION].count>30000);assert(primitive.attributes.COLOR_0!==undefined);});
+test('both science rovers contain six distinct rolling wheel pivots and real mesh bodies',()=>{for(const name of ['science-rover-blue','science-rover-gold']){const g=glb(name);const wheels=g.nodes.filter(n=>n.name.startsWith('wheel_'));assert.equal(wheels.length,6);assert.equal(new Set(wheels.map(n=>JSON.stringify(n.translation))).size,6);assert(g.meshes.length>=7);}});
+test('lander and meteor exports contain renderable geometry',()=>{for(const n of ['landers-detailed','meteorite']){const g=glb(n);assert(g.meshes.length>0);assert(g.materials.length>0);}});

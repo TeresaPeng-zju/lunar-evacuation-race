@@ -1,0 +1,36 @@
+/* V0.2: the moon arena is the focus, with compact flight controls and real card art. */
+:root{--bg:#0b1015;--panel:#131c23;--line:#35424b;--muted:#a4b0b7;--text:#e8edf0}
+body{background:radial-gradient(ellipse at 50% 20%,#25303a,#0a1016 65%)}
+header{height:70px;background:#0c141bdf;padding:0 2.4%}.brand-mark{color:#c6dce7}.brand{font-size:22px}.brand small{font-size:10px}.mission{font-size:13px}nav button{font-size:13px}
+main{padding:17px 2.4% 0;max-width:1900px}.mission-bar{margin-bottom:15px}.mission-bar h1{font-size:26px;margin:5px 0}.mission-bar p{font-size:14px}.eyebrow{font-size:11px}.telemetry span{font-size:12px}.phase strong{font-size:18px}.telemetry .phase{min-width:210px}
+.arena{border-radius:10px;border-color:#53626b;box-shadow:0 20px 80px #0008,0 0 0 1px #ffffff08;background:#252c31 url('assets/moon-terrain.png') center/cover}
+canvas{background:transparent;max-height:none;height:auto;min-height:0;aspect-ratio:8/5;width:100%;display:block}
+.map-top{font-size:11px;letter-spacing:1.5px;text-shadow:0 2px 4px #000}.map-key{font-size:12px}.map-scale{font-size:12px}.map-scale span{font-size:11px}
+.controls{gap:12px;margin-top:12px;grid-template-columns:1fr .72fr 1fr}.player,.command{padding:14px 16px;background:linear-gradient(140deg,#22303ce8,#101820f5);box-shadow:inset 0 1px #ffffff08}.player-title b{font-size:17px}.player-title>span{font-size:12px}.player-title small{font-size:11px}.route-btn b{font-size:14px}.route-btn span{font-size:11px}.route-btn{padding:9px 10px}.rock-btn{font-size:14px;padding:9px 12px;background:#30313366}.rock-hint{font-size:12px}.command>div:not(.command-actions){font-size:14px}.command-actions button{font-size:12px}.primary{background:linear-gradient(135deg,#dcc088,#b59458);font-size:15px}.bottom-line{font-size:12px}.event-banner{font-size:14px;background:#101b26e8;backdrop-filter:blur(12px)}
+.player .route-btn:disabled.selected{opacity:1;background:#34434d80;border-color:var(--accent)}
+.card-front,.card-back{background-image:url('assets/card-reference.png');background-repeat:no-repeat;background-size:338.224% 131.789%;background-color:#11191e}
+.card-front{background-position:13.047% 69.231%}.card-back{background-position:81.442% 69.231%}
+.mini-card{display:block;flex:0 0 38px;height:57px;border-radius:3px;box-shadow:0 3px 9px #0008;transform:rotate(-7deg);border:1px solid #8a9282}
+.rock-row{margin-top:10px;gap:11px;min-height:58px}.rock-hint{flex:1}
+.cast-stage{position:absolute;inset:0;pointer-events:none;z-index:6;perspective:1000px;overflow:hidden}
+.cast-card{position:absolute;transform-style:preserve-3d;will-change:transform,opacity;filter:drop-shadow(0 12px 16px #0009)}
+.card-rotor{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform}
+.card-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;border:1px solid #bbd6dc80;box-shadow:0 0 22px color-mix(in srgb,var(--card-glow) 35%,transparent),inset 0 0 8px #000}
+.card-face.card-back{transform:rotateY(180deg)}.card-shine{position:absolute;inset:0;border-radius:12px;pointer-events:none;background:linear-gradient(120deg,#ffffff18,transparent 45%,#ffffff10);transform:translateZ(1px);backface-visibility:hidden}
+#fxBtn{color:#c3d9e5;border-color:#4b6577;background:#30475544}.result{z-index:7}.result h2{font-size:42px}.result table{font-size:14px}.result p{font-size:14px}
+body.floor .arena{background:#11181e}body.floor canvas{max-height:100vh;height:100vh;aspect-ratio:auto}
+@media(min-width:1001px){main{display:grid;grid-template-rows:auto minmax(350px,1fr) auto auto;height:calc(100vh - 70px);padding-top:14px}.mission-bar{min-height:76px}.arena{min-height:0}canvas{height:100%;object-fit:contain;aspect-ratio:auto}.controls{margin-top:12px}.bottom-line{margin:10px 0 12px}.player-title{margin-bottom:8px}.player,.command{padding:11px 14px}.route-btn{padding:7px 9px}.rock-row{margin-top:7px}.map-scale span{display:none}body.floor main{display:block;height:100vh}}
+@media(max-width:1000px){.mission{display:none}.controls{grid-template-columns:1fr 1fr}.command{grid-row:2;grid-column:1/-1}.map-top>span:last-child{display:none}canvas{width:100%;height:auto;aspect-ratio:8/5}.command .eyebrow{display:none}.telemetry .phase{min-width:155px}.mission-bar p{font-size:12px}}
+@media(max-width:600px){header{height:64px;padding:0 12px}.brand{font-size:16px}.brand-mark{display:none}nav{gap:0}nav button{font-size:11px;padding:7px 5px}#floorBtn{display:none}main{padding:14px 10px 0}.mission-bar h1{font-size:21px}.telemetry strong{font-size:25px}.player{padding:10px}.player-title b{font-size:14px}.player-title>span{font-size:11px}.route-btn b{font-size:13px}.route-btn span{font-size:10px}.rock-row{display:grid;grid-template-columns:30px 1fr;gap:7px}.mini-card{width:30px;height:45px}.rock-btn{font-size:12px;padding:8px 5px}.rock-hint{grid-column:1/-1;font-size:11px}.map-top,.map-key{font-size:9px}.result h2{font-size:25px}.result table{font-size:10px}.result p{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.cast-card{filter:none}.card-shine{display:none}}
+/* V0.3: full WebGL terrain, solid roads and articulated science rovers. */
+.arena{background:#181a1b;isolation:isolate;border-color:#4f514c;border-radius:4px}
+canvas{touch-action:none;cursor:grab}canvas:active{cursor:grabbing}
+.camera-tools{position:absolute;z-index:5;left:18px;top:45px;display:flex;gap:5px;align-items:center;pointer-events:auto}.camera-tools button{font-size:12px;padding:7px 11px;background:#101414d9;border:1px solid #63675c80;color:#b6bab1;border-radius:3px}.camera-tools button.active{background:#d1c4a6;color:#1b1d1b;border-color:#d1c4a6}.camera-tools span{font-size:11px;color:#b8b9af;margin-left:9px;text-shadow:0 1px 3px #000}
+.world-label{position:absolute;z-index:2;pointer-events:none;transform:translate(-50%,-50%);font-size:11px;letter-spacing:.5px;color:var(--label-color);background:#101310a8;border-bottom:1px solid #9caa9455;padding:3px 7px;text-shadow:0 1px 3px #000;white-space:nowrap}.world-label[hidden]{display:none}.world-status{position:absolute;inset:0;display:grid;place-items:center;color:#e2d6b9;background:#14181be8;z-index:9;font-size:16px;letter-spacing:2px}.world-status.error{color:#f4a385}
+.map-key,.map-scale,.map-top{pointer-events:none}.map-top{z-index:4}.map-key,.map-scale{z-index:4}#quakeBtn{color:#d7c6a0}header .mission{font-size:11px}nav button{padding:8px}
+@media(max-width:600px){.camera-tools{top:32px;left:9px}.camera-tools button{font-size:10px;padding:5px 7px}.camera-tools span{display:none}.world-label{font-size:8px;padding:2px 3px}.map-scale{display:none}#soundBtn{display:none}.map-key{bottom:8px}.map-top{top:10px}nav button{font-size:10px;padding:6px 4px}}
+
+@media(min-width:1001px){main{height:auto;grid-template-rows:auto minmax(480px,62vh) auto auto}body.floor main{height:100vh}.arena{overflow:hidden}}
+
+.preview-caption{position:absolute;z-index:5;right:15px;bottom:16px;padding:7px 12px;background:#171b1cdd;border:1px solid #95866b;color:#ddccaa;font-size:12px;pointer-events:none}.preview-caption[hidden]{display:none}
