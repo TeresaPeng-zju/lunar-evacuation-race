@@ -34,7 +34,7 @@ export function bypass(e){const [a,b]=e.points;const sign=e.id==='beaconRock'?-1
 export function sample(points,d){for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],l=Math.hypot(b[0]-a[0],b[1]-a[1]);if(d<=l)return {x:a[0]+(b[0]-a[0])*d/l,y:a[1]+(b[1]-a[1])*d/l,angle:Math.atan2(b[1]-a[1],b[0]-a[0])};d-=l;}const p=points.at(-1);return {x:p[0],y:p[1],angle:0};}
 export class Race{
  constructor({random=Math.random}={}){this.random=random;this.reset();}
- reset(){this.time=0;this.status='ready';this.paused=false;this.quake=null;this.locked=false;this.aftershock=null;this.winner=null;this.firstArrival=null;this.events=[];this.players=[0,1].map(id=>({id,opening:null,finalChoice:null,final:null,card:true,beacon:false,gate:false,queue:[],edge:null,d:0,position:{x:70,y:0,angle:0},rock:null,detours:[],arrived:null,distance:0}));this.log('任务就绪 · 请选择开局路线');}
+ reset(){this.time=0;this.status='ready';this.paused=false;this.quake=null;this.locked=false;this.aftershock=null;this.winner=null;this.firstArrival=null;this.events=[];this.players=[0,1].map(id=>({id,opening:null,finalChoice:null,final:null,card:true,beacon:false,gate:false,queue:[],edge:null,d:0,position:{x:70,y:0,angle:0},rock:null,detours:[],arrived:null,distance:0,history:[[70,0]]}));this.log('任务就绪 · 请选择开局路线');}
  log(text){this.events.unshift({time:this.time,text});this.events=this.events.slice(0,30);}
  chooseOpening(id,route){if(this.status!=='ready'||!['beacon','outer'].includes(route))return false;this.players[id].opening=route;return true;}
  start(){if(this.status!=='ready'||this.players.some(p=>!p.opening))return false;this.status='running';for(const p of this.players){p.queue=['start',...(p.opening==='beacon'?['beaconIn','beaconRock','beaconOut']:['outerIn','outerRock','outerOut']),'common'];this.next(p);}this.log('双车发车 · 撤离行动开始');return true;}
@@ -42,7 +42,7 @@ export class Race{
  lock(){if(this.locked)return;this.locked=true;for(const p of this.players){p.final=p.finalChoice||'safe';p.queue.push(...(p.final==='safe'?['safeIn','safeRock','safeOut']:['riskIn','riskRock','source']));}this.log('末段路线同时公开 · 未提交者默认归航环路');}
  legal(attacker){if(this.status!=='running'||this.paused||!this.players[attacker].card)return null;const p=this.players[1-attacker];let distance=p.edge?p.edge.length-p.d:0;for(const id of p.queue){const e=ROUTES[id];if(e.extra&&distance>SPEED*(CONFIG.warning+0.8))return {id,distance,point:e.points[0],target:p.id};distance+=e.length;}return null;}
  attack(id){const target=this.legal(id);if(!target)return false;this.players[id].card=false;this.players[target.target].rock={edge:target.id,at:this.time,active:false,done:false};this.log(`${id===0?'蓝':'黄'}方投放落石 · 对手前方预警 2 秒`);return true;}
- next(p){const id=p.queue.shift();if(!id){p.edge=null;p.arrived=this.time;if(this.firstArrival===null)this.firstArrival=this.time;this.log(`${p.id===0?'蓝':'黄'}车进入飞船停靠区`);return;}
+ next(p){if(p.edge)p.history.push(...p.edge.points.slice(1));const id=p.queue.shift();if(!id){p.edge=null;p.arrived=this.time;if(this.firstArrival===null)this.firstArrival=this.time;this.log(`${p.id===0?'蓝':'黄'}车进入飞船停靠区`);return;}
  let original=ROUTES[id],points=original.points;
  if(p.rock?.edge===id){points=bypass(original);p.detours.push(id);this.log(`${p.id===0?'蓝':'黄'}车进入落石绕行道路`);}
  p.edge={...original,points,length:length(points)};p.d=0;

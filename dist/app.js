@@ -1,3 +1,4 @@
+import { TireTrails } from './trails.js';
 import {Race,ROUTES,SPEED,bypass,length,sample,CONFIG} from './engine.js';
 const $=s=>document.querySelector(s),canvas=$('#map'),ctx=canvas.getContext('2d'),race=new Race();
 const colors=['#70d4f6','#edc871'],routeName={beacon:'信标回廊',outer:'废弃栈道',safe:'归航环路',risk:'碎隙捷径'};
@@ -6,6 +7,7 @@ const floor=new URLSearchParams(location.search).has('floor');if(floor)document.
 const channel='BroadcastChannel'in window?new BroadcastChannel('lunar-evacuation-v1'):null;
 channel?.addEventListener('message',e=>{if(floor&&e.data.type==='state'){Object.assign(race,e.data.state);renderUI();}});
 function point(p,id){return [p[0],id===0?270+p[1]:730-p[1]];}
+const tireTrails = new TireTrails('assets/tire-tracks.png', point);
 function path(points,id){ctx.beginPath();points.forEach((p,i)=>{const [x,y]=point(p,id);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});}
 function text(t,x,y,color='#a8b4b4',size=12,align='center'){ctx.font=`${size}px -apple-system, "PingFang SC", sans-serif`;ctx.textAlign=align;ctx.textBaseline='middle';ctx.fillStyle=color;ctx.fillText(t,x,y);}
 function road(points,id,{active=false,dashed=false,alpha=1}={}){ctx.save();ctx.globalAlpha=alpha;ctx.lineJoin='round';ctx.lineCap='round';path(points,id);ctx.strokeStyle='#0b0f11';ctx.lineWidth=38;ctx.stroke();ctx.strokeStyle=active?'#747c77':'#444b4b';ctx.lineWidth=33;ctx.stroke();ctx.strokeStyle=active?'#353b3c':'#303536';ctx.lineWidth=29;ctx.stroke();ctx.strokeStyle=active?colors[id]:'#78807a';ctx.globalAlpha*=active?.45:.25;ctx.setLineDash(dashed?[6,10]:[2,12]);ctx.lineWidth=2;ctx.stroke();ctx.restore();}
@@ -23,6 +25,7 @@ function render(){ctx.clearRect(0,0,1600,1000);ctx.save();if(race.quake!==null&&
   for(const [key,e] of Object.entries(ROUTES)){if(key==='collapse'||(['riskIn','riskRock','source','stable'].includes(key)&&race.quake===null))continue;road(e.points,id,{active:selected(id,key)});}
   for(const key of ['beaconRock','outerRock','safeRock','riskRock']){if(key==='riskRock'&&race.quake===null)continue;const e=ROUTES[key];const p=race.players[id],used=p.rock?.edge===key&&!p.rock.done;road(bypass(e),id,{active:used,dashed:true,alpha:used?1:.32});}
   if(race.quake!==null){road(ROUTES.collapse.points,id,{active:race.aftershock==='collapse',dashed:true,alpha:race.aftershock==='collapse'?1:.3});const [x,y]=point([1280,-35],id);ctx.strokeStyle=race.aftershock==='collapse'?'#e29a72':'#85cbd4';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x-28,y-35);ctx.lineTo(x-10,y-16);ctx.lineTo(x+6,y-8);ctx.lineTo(x-5,y+10);ctx.lineTo(x+20,y+36);ctx.stroke();if(race.aftershock==='collapse'){const [sx,sy]=point([1320,-28],id);ctx.fillStyle='#0a1115';ctx.fillRect(sx-10,sy-20,32,40);}}
+  tireTrails.draw(ctx, race.players[id]);
   const [sx,sy]=point([70,0],id);ctx.strokeStyle=colors[id]+'88';ctx.fillStyle='#162126';ctx.lineWidth=2;ctx.fillRect(sx-34,sy-35,68,70);ctx.strokeRect(sx-34,sy-35,68,70);text('0'+(id+1),sx,sy-65,colors[id],22);plate('START',[70,60],id,colors[id]);
   beacon(id);gate(id);ship(id);
   plate('信标回廊',[465,-140],id);plate('废弃栈道',[495,ROUTES.outerRock.points[0][1]+35],id);plate('月震触发区',[800,45],id,'#c8bfaa');plate('归航环路',[1230,ROUTES.safeRock.points[0][1]+36],id);if(race.quake!==null)plate('碎隙捷径',[1210,-78],id,'#9cd1d7');

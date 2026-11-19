@@ -71,6 +71,8 @@ npm test
 
 - `dist/engine.js`：纯状态机、几何路径、规则与位置事件。
 - `dist/app.js`：Canvas 绘图、交互、音效与双屏广播。
+- `dist/trails.js`：根据实际行驶历史铺设双轮车辙，支持转弯、绕行、双屏同步和复位清除。
+- `dist/assets/tire-tracks.png`：用户提供的车辙素材，经透明底处理后用于动态轨迹。
 - `dist/style.css`、`dist/index.html`：响应式指挥界面。
 - `dist/assets/moon-terrain.png`：通过内置 imagegen 生成的原创底图。
 - `tests/engine.test.mjs`：17 项 Node 内置测试。
