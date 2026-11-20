@@ -35,3 +35,5 @@ Three.js 0.180.0 is vendored under its MIT license at `dist/vendor/three/LICENSE
 `art/reference-library/` 与 `dist/assets/reference-models/` 是参照用户提供的 `moon_map_cinematic_v2_标准工程包` 重新构建的 20 个设施和地形。该包仅有栅格渲染素材，无源网格；新模型的不可见侧面、内部构造、部分形体和动效为补建设计，不标作原作者的原始模型。保留原地图格位，未直接嵌入原始图片或视频。用户已表示同学提供的素材可投入使用。
 
 生成脚本为 `tools/build_reference_library.py`、`tools/reference_textures.py`、`tools/render_reference_animation.py` 与 `tools/encode_reference_animation.py`。完整工程、重建边界、单位和重新生成方法见 `art/reference-library/README.md`。
+
+V0.4 比赛主画面通过 `dist/world.js` 加载 `moon-map.glb`，使用其中 19 个常驻设施，以及第 20 个陨石撞击模型的动画与路障网格。`race-layout.json` 是避开双车道和绕行线的运行摆放；独立模型库仍保留原 8×5 格位。比赛地面、实体道路和断层继续使用为双车道玩法建模的 `lunar-world.glb`，参考图地形网格仅在模型库展示。
