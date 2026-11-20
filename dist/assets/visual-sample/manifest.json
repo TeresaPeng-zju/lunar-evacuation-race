@@ -1,0 +1,136 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "file": "dist/assets/reference-models/terrain.glb",
+      "sha256": "3a2fb625503072cbe1b88105a01b207d800ce0ced312025af2846e7bd40b37b7"
+    },
+    {
+      "file": "dist/assets/reference-models/research-station.glb",
+      "sha256": "6b9bb83f15f0988b71c8a84cf95fb89b4b26ccf11b639d075f75d799a1fb55bf"
+    },
+    {
+      "file": "dist/assets/reference-models/beacon-1.glb",
+      "sha256": "efebf3520b65ce5c8f25bc243ad6d6012cce61bb1a467bfe87f4dd92a84c750a"
+    },
+    {
+      "file": "dist/assets/models/science-rover-blue.glb",
+      "sha256": "6ffe9ee5e760b23b3430a0e93292b504c098d81e77f90928833ffdc426ecec1d"
+    }
+  ],
+  "terrainCrop": {
+    "sourceBoundsBlender": [
+      -40,
+      -8,
+      -25,
+      3
+    ],
+    "offset": [
+      24,
+      11,
+      0.18
+    ],
+    "size": [
+      32,
+      28
+    ]
+  },
+  "route": {
+    "source": "engine.js beaconIn tail / beaconRock / beaconOut / common entry",
+    "worldOrigin": [
+      -14,
+      0,
+      -16.5
+    ],
+    "pointsXZ": [
+      [
+        -13.0,
+        0.0
+      ],
+      [
+        -5.0,
+        0.0
+      ],
+      [
+        5.0,
+        0.0
+      ],
+      [
+        9.0,
+        0.0
+      ],
+      [
+        12.0,
+        5.0
+      ],
+      [
+        13.5,
+        5.0
+      ],
+      [
+        16.5,
+        0.5
+      ]
+    ],
+    "visualWidth": 2.4,
+    "changesToEngine": false
+  },
+  "placements": [
+    {
+      "id": "research-station",
+      "positionBlender": [
+        -3,
+        5,
+        0
+      ],
+      "scale": 1.15,
+      "rotationZ": 0
+    },
+    {
+      "id": "beacon-1",
+      "positionBlender": [
+        8,
+        4,
+        0
+      ],
+      "scale": 0.8,
+      "rotationZ": 0
+    },
+    {
+      "id": "science-rover-blue",
+      "positionBlender": [
+        -5,
+        0,
+        0
+      ],
+      "scale": 0.58,
+      "rotationZ": -1.5707963267948966
+    }
+  ],
+  "textureSource": {
+    "name": "Moon 04",
+    "author": "Poly Haven / Greg Zaal, Jenelle van Heerden, Rico Cilliers",
+    "url": "https://polyhaven.com/a/moon_04",
+    "license": "CC0",
+    "capture": "lunar simulant at Spaceport Rostock lab; not lunar photography"
+  },
+  "baked": [
+    "unique albedo with compaction and tire wear",
+    "roughness",
+    "normal",
+    "surface cavity AO"
+  ],
+  "runtime": [
+    "directional shadows",
+    "environment reflections",
+    "GTAO contact occlusion",
+    "tone mapping",
+    "subtle bloom"
+  ],
+  "notBaked": [
+    "direct lighting",
+    "contact AO",
+    "Blender compositor"
+  ],
+  "sceneSha256": "724670ff906d47b3100c4065525773f92411da3a247980971cd2cc90a8894457"
+}

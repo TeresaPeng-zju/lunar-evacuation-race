@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "status": "planned-not-run-in-Unity",
+  "sceneSha256": "724670ff906d47b3100c4065525773f92411da3a247980971cd2cc90a8894457",
+  "sourceFrame": "glTF / Three.js right-handed Y-up; explicitly verify importer handedness before setting Unity transforms",
+  "screenshots": {
+    "size": [1600, 1000],
+    "views": {
+      "oblique": {"projection": "orthographic", "position": [0, 24, 23.2], "target": [0, 0, -0.8], "up": [0, 1, 0], "halfHeight": 7.8},
+      "top": {"projection": "orthographic", "position": [0, 40, -0.8], "target": [0, 0, -0.8], "up": [0, 0, -1], "halfHeight": 9.3},
+      "station": {"projection": "orthographic", "position": [3, 22.5, 13.2], "target": [-3, 0.5, -4.8], "up": [0, 1, 0], "halfHeight": 4.5}
+    },
+    "near": 0.1,
+    "far": 100
+  },
+  "landmarksSourceFrame": {
+    "routeStart": [-13, 0, 0],
+    "routeBend": [9, 0, 0],
+    "routeExit": [16.5, 0, 0.5]
+  },
+  "threeBaseline": {
+    "version": "0.180.0",
+    "toneMapping": "ACESFilmic", "exposure": 0.92, "output": "sRGB",
+    "sunPosition": [-18, 23, 12], "sunTarget": [0, 0, 0], "sunColorSRGB": "#fff7ec", "sunIntensity": 3.1,
+    "shadowMap": [4096, 4096], "shadowBounds": [-21, 21, -20, 20], "shadowMode": "PCFSoftShadowMap, static cached",
+    "hemisphereIntensity": 0.28, "environmentIntensity": 0.95,
+    "ao": {"type": "GTAO", "resolutionScale": 0.5, "radius": 0.65, "thickness": 1.1, "blend": 0.9, "samples": 16},
+    "bloom": {"strength": 0.1, "radius": 0.35, "threshold": 1.5}
+  },
+  "unityTarget": {
+    "editor": "pin an installed supported Unity 6 LTS revision and matching URP; record exact versions",
+    "pipeline": "URP, desktop Web build; do not substitute HDRP editor renders",
+    "importer": "com.unity.cloud.gltfast; record resolved version",
+    "colorSpace": "Linear",
+    "baselineGI": "off; same source material maps",
+    "enhancedGI": "separate optional baked-lighting variant, labeled and timed",
+    "intensityNumbersAreNotInterchangeable": true,
+    "sameSourceGLBRequired": true
+  },
+  "benchmark": {
+    "drawingBuffer": [3456, 2160], "comparisonWarmupSeconds": 30, "comparisonSampleSeconds": 30,
+    "repeatCount": 3, "foregroundTabRequired": true, "sameMachineAndBrowserRequired": true,
+    "capture": ["median frame ms", "P95 frame ms", "long frames", "actual drawing buffer", "render scale", "AA and AO settings", "cold load seconds", "transferred bytes", "memory if measurable", "browser console errors"],
+    "existingThreeSnapshot": {"warmupSeconds": 2, "sampleSeconds": 10, "medianFrameMs": 33.2, "p95FrameMs": 35, "medianFps": 30},
+    "note": "Existing result is a short sample, not a full-map target-device acceptance test. Rerun both renderers with the comparison durations before migration."
+  },
+  "integration": {
+    "gameRulesRemain": "dist/engine.js",
+    "presentationOnly": true,
+    "noRobotConnectionInVisualTest": true,
+    "noPhysicsDerivedRoutes": true,
+    "floorScreenRemainsIndependent": true,
+    "hardwareContractStatus": "v0.1 proposal; hardware not connected"
+  }
+}
