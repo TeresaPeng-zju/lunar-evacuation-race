@@ -25,7 +25,7 @@ async function select(a){
   if(model){scene.remove(model);mixer?.stopAllAction();if(mixer)mixer.uncacheRoot(model);dispose(model);}
   model=gltf.scene;model.traverse(n=>{if(n.isMesh){n.castShadow=true;n.receiveShadow=true;for(const m of Array.isArray(n.material)?n.material:[n.material])m.wireframe=wire;}});scene.add(model);clips=gltf.animations;mixer=new THREE.AnimationMixer(model);reset();
   // Exclude the airborne meteor from auto-framing; each single-cell library asset fits a 10-unit sector.
-  radius=a?(a.id==='central-ruin'?10:a.id==='meteor-impact'?7:5.1):48;target.set(0,a?.id==='meteor-impact'?3:a?0.5:0,0);fit('perspective');
+  radius=a?(a.id==='central-ruin'?10:a.id==='meteor-impact'?9:5.1):48;target.set(0,a?.id==='meteor-impact'?4.2:a?0.5:0,0);fit('perspective');
   const sc=a?7:48;sun.shadow.camera.left=-sc;sun.shadow.camera.right=sc;sun.shadow.camera.top=sc;sun.shadow.camera.bottom=-sc;sun.shadow.camera.updateProjectionMatrix();
   $('title').textContent=a?.name??'月面工业遗址';$('code').textContent=a?`ASSET / ${a.id.toUpperCase()}`:'MASTER SCENE';$('coordinates').textContent=a?`SECTOR / ${a.cell}`:'SECTOR / 8 × 5';$('description').textContent=a?(a.animated?'实体几何 · 可播放激活动效':'实体几何 · 可旋转查看各侧细节'):'20 处设施 · 陨石坑地形 · 10 组激活动效';$('play').disabled=clips.length===0;$('download').href=base+(a?.file??'moon-map.glb');$('loading').hidden=true;
   window.modelArchive={selected,animations:clips.length,meshes:0};model.traverse(n=>{if(n.isMesh)window.modelArchive.meshes++;});
