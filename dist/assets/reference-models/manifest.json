@@ -1,0 +1,415 @@
+{
+  "version": 1,
+  "provenance": "Reconstructed from supplied raster artwork; not recovered source geometry. Unseen surfaces and animation timing are newly designed.",
+  "units": "artistic units; 10 units per grid cell; not calibrated to hardware",
+  "mapSize": [
+    1600,
+    1000
+  ],
+  "grid": [
+    8,
+    5
+  ],
+  "assets": [
+    {
+      "id": "ice-mine",
+      "name": "水冰矿坑",
+      "cell": "B1",
+      "animated": false,
+      "span": [
+        1,
+        1
+      ],
+      "file": "ice-mine.glb",
+      "positionPx": [
+        300.0,
+        100.0
+      ],
+      "position": [
+        -25.0,
+        0,
+        -20.0
+      ]
+    },
+    {
+      "id": "beacon-1",
+      "name": "信标塔 01",
+      "cell": "D1",
+      "animated": true,
+      "span": [
+        1,
+        1
+      ],
+      "file": "beacon-1.glb",
+      "positionPx": [
+        700.0,
+        100.0
+      ],
+      "position": [
+        -5.0,
+        0,
+        -20.0
+      ]
+    },
+    {
+      "id": "abandoned-camp",
+      "name": "废弃营地",
+      "cell": "F1",
+      "animated": false,
+      "span": [
+        1,
+        1
+      ],
+      "file": "abandoned-camp.glb",
+      "positionPx": [
+        1100.0,
+        100.0
+      ],
+      "position": [
+        15.0,
+        0,
+        -20.0
+      ]
+    },
+    {
+      "id": "landing-pad",
+      "name": "着陆平台",
+      "cell": "H1",
+      "animated": true,
+      "span": [
+        1,
+        1
+      ],
+      "file": "landing-pad.glb",
+      "positionPx": [
+        1500.0,
+        100.0
+      ],
+      "position": [
+        35.0,
+        0,
+        -20.0
+      ]
+    },
+    {
+      "id": "supply-station",
+      "name": "补给站",
+      "cell": "A2",
+      "animated": true,
+      "span": [
+        1,
+        1
+      ],
+      "file": "supply-station.glb",
+      "positionPx": [
+        100.0,
+        300.0
+      ],
+      "position": [
+        -35.0,
+        0,
+        -10.0
+      ]
+    },
+    {
+      "id": "crystal-mine",
+      "name": "晶矿采掘场",
+      "cell": "C2",
+      "animated": false,
+      "span": [
+        1,
+        1
+      ],
+      "file": "crystal-mine.glb",
+      "positionPx": [
+        500.0,
+        300.0
+      ],
+      "position": [
+        -15.0,
+        0,
+        -10.0
+      ]
+    },
+    {
+      "id": "central-ruin",
+      "name": "中央遗迹",
+      "cell": "D2",
+      "animated": true,
+      "span": [
+        2,
+        2
+      ],
+      "file": "central-ruin.glb",
+      "positionPx": [
+        800.0,
+        400.0
+      ],
+      "position": [
+        0.0,
+        0,
+        -5.0
+      ]
+    },
+    {
+      "id": "arc-towers",
+      "name": "电弧干扰塔",
+      "cell": "G2",
+      "animated": true,
+      "span": [
+        1,
+        1
+      ],
+      "file": "arc-towers.glb",
+      "positionPx": [
+        1300.0,
+        300.0
+      ],
+      "position": [
+        25.0,
+        0,
+        -10.0
+      ]
+    },
+    {
+      "id": "landing-base",
+      "name": "着陆基地",
+      "cell": "A3",
+      "animated": false,
+      "span": [
+        1,
+        1
+      ],
+      "file": "landing-base.glb",
+      "positionPx": [
+        100.0,
+        500.0
+      ],
+      "position": [
+        -35.0,
+        0,
+        -0.0
+      ]
+    },
+    {
+      "id": "beacon-2",
+      "name": "信标塔 02",
+      "cell": "C3",
+      "animated": true,
+      "span": [
+        1,
+        1
+      ],
+      "file": "beacon-2.glb",
+      "positionPx": [
+        500.0,
+        500.0
+      ],
+      "position": [
+        -15.0,
+        0,
+        -0.0
+      ]
+    },
+    {
+      "id": "drilling-platform",
+      "name": "钻井平台",
+      "cell": "F3",
+      "animated": false,
+      "span": [
+        1,
+        1
+      ],
+      "file": "drilling-platform.glb",
+      "positionPx": [
+        1100.0,
+        500.0
+      ],
+      "position": [
+        15.0,
+        0,
+        -0.0
+      ]
+    },
+    {
+      "id": "outpost-pod",
+      "name": "前哨舱",
+      "cell": "H3",
+      "animated": false,
+      "span": [
+        1,
+        1
+      ],
+      "file": "outpost-pod.glb",
+      "positionPx": [
+        1500.0,
+        500.0
+      ],
+      "position": [
+        35.0,
+        0,
+        -0.0
+      ]
+    },
+    {
+      "id": "crashed-ship",
+      "name": "坠毁飞船",
+      "cell": "B4",
+      "animated": false,
+      "span": [
+        1,
+        1
+      ],
+      "file": "crashed-ship.glb",
+      "positionPx": [
+        300.0,
+        700.0
+      ],
+      "position": [
+        -25.0,
+        0,
+        10.0
+      ]
+    },
+    {
+      "id": "dust-sinkhole",
+      "name": "月尘流沙坑",
+      "cell": "D4",
+      "animated": true,
+      "span": [
+        1,
+        1
+      ],
+      "file": "dust-sinkhole.glb",
+      "positionPx": [
+        700.0,
+        700.0
+      ],
+      "position": [
+        -5.0,
+        0,
+        10.0
+      ]
+    },
+    {
+      "id": "research-station",
+      "name": "科研站",
+      "cell": "E4",
+      "animated": true,
+      "span": [
+        1,
+        1
+      ],
+      "file": "research-station.glb",
+      "positionPx": [
+        900.0,
+        700.0
+      ],
+      "position": [
+        5.0,
+        0,
+        10.0
+      ]
+    },
+    {
+      "id": "beacon-3",
+      "name": "信标塔 03",
+      "cell": "G4",
+      "animated": true,
+      "span": [
+        1,
+        1
+      ],
+      "file": "beacon-3.glb",
+      "positionPx": [
+        1300.0,
+        700.0
+      ],
+      "position": [
+        25.0,
+        0,
+        10.0
+      ]
+    },
+    {
+      "id": "helium-extractor",
+      "name": "氦-3 采矿机",
+      "cell": "C5",
+      "animated": false,
+      "span": [
+        1,
+        1
+      ],
+      "file": "helium-extractor.glb",
+      "positionPx": [
+        500.0,
+        900.0
+      ],
+      "position": [
+        -15.0,
+        0,
+        20.0
+      ]
+    },
+    {
+      "id": "broken-walkway",
+      "name": "断裂栈道",
+      "cell": "E5",
+      "animated": false,
+      "span": [
+        1,
+        1
+      ],
+      "file": "broken-walkway.glb",
+      "positionPx": [
+        900.0,
+        900.0
+      ],
+      "position": [
+        5.0,
+        0,
+        20.0
+      ]
+    },
+    {
+      "id": "probe-wreck",
+      "name": "探测器残骸",
+      "cell": "G5",
+      "animated": false,
+      "span": [
+        1,
+        1
+      ],
+      "file": "probe-wreck.glb",
+      "positionPx": [
+        1300.0,
+        900.0
+      ],
+      "position": [
+        25.0,
+        0,
+        20.0
+      ]
+    },
+    {
+      "id": "meteor-impact",
+      "name": "陨石坠落",
+      "cell": "H5",
+      "animated": true,
+      "span": [
+        1,
+        1
+      ],
+      "file": "meteor-impact.glb",
+      "positionPx": [
+        1500.0,
+        900.0
+      ],
+      "position": [
+        35.0,
+        0,
+        20.0
+      ]
+    }
+  ]
+}
