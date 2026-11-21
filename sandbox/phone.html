@@ -10,7 +10,19 @@ section{background:#131f31;border:1px solid #30445c;border-radius:18px;padding:2
 h2{font-size:18px;margin:0 0 16px}p{line-height:1.7;overflow-wrap:anywhere}
 #connection{color:#83e8d2}code{font-size:18px}li{padding:14px 0;border-bottom:1px solid #30445c;line-height:1.6}
 ul{list-style:none;padding:0}small{color:#adbdd1}a{color:#83e8d2}
+#summary {display:none}
+html.compact body {background:transparent;color:#dce4ed}
+.compact main {display:none}
+.compact #summary {display:flex;align-items:center;gap:24px;box-sizing:border-box;border:1px solid #32404c;border-radius:8px;background:#172128;padding:10px 15px;height:52px;font-size:14px}
+.compact #summary span {white-space:nowrap}
+#reader-link {color:#c9d4db;text-decoration:none}
+#reader-state {color:#aebbc4}
+#reader-state.online {color:#83e8d2}
+#blue {color:#82bded} #gold {color:#dfb66b}
+@media(max-width:660px){.compact #summary{flex-wrap:wrap;align-content:center;gap:5px 16px;height:86px} #reader-link{width:100%}}
 </style>
+<script>if(new URLSearchParams(location.search).get('view')==='summary') document.documentElement.classList.add('compact');</script>
+<div id="summary"><a id="reader-link" href="/" target="_blank" rel="noopener">刷卡机 · <b id="reader-state">连接中</b> ↗</a><span>蓝方 · <b id="blue">等待出牌</b></span><span>黄方 · <b id="gold">等待出牌</b></span></div>
 <main>
 <h1>手机读卡连接</h1>
 <section>
@@ -30,6 +42,17 @@ async function update(){
   const r=await fetch('/api/phone-monitor',{cache:'no-store'});
   if(!r.ok)throw Error();
   const s=await r.json();
+  if (document.documentElement.classList.contains('compact')) {
+    const online = s.phones.length > 0;
+    $('reader-state').textContent = online ? '已连接' : '等待手机连接';
+    $('reader-state').classList.toggle('online', online);
+    const cards = s.latest_accepted ?? s.scans.filter(scan => scan.accepted && scan.match_id === s.match_id);
+    for (const [id, side] of [['blue','蓝方'], ['gold','黄方']]) {
+      const card = cards.find(scan => scan.side === side);
+      $(id).textContent = card ? (card.label === '路线牌' ? '已锁定' : card.label) : '等待出牌';
+    }
+    return;
+  }
   $('addresses').replaceChildren(...s.addresses.map(address=>{
     const p=document.createElement('p');const code=document.createElement('code');
     code.textContent=address;p.append(code);return p;
@@ -42,7 +65,7 @@ async function update(){
     li.textContent=[scan.side,scan.label,scan.message].filter(Boolean).join(' · ');
     return li;
   }));
- }catch{$('connection').textContent='与电脑服务断开，正在重连…'}
+ }catch{$('reader-state').textContent='服务断开';$('reader-state').classList.remove('online');$('connection').textContent='与电脑服务断开，正在重连…'}
 }
 update();setInterval(update,2000);
 </script>

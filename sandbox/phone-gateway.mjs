@@ -20,6 +20,7 @@ export function resolveCard(id) {
 export function createPhoneGateway({ game, drain, advance, port }) {
   const sessions = new Map();
   const scans = new Map();
+  const latestAccepted = new Map();
   const addresses = Object.values(networkInterfaces()).flat()
     .filter((a) => a.family === 'IPv4' && !a.internal
       && /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(a.address))
@@ -67,6 +68,7 @@ export function createPhoneGateway({ game, drain, advance, port }) {
     scan.status = p.accepted ? 'accepted' : 'rejected';
     scan.accepted = !!p.accepted;
     scan.consumed = !!p.consumed;
+    if (scan.accepted) latestAccepted.set(scan.card.robot_id, scan);
     scan.reason = p.reason || '';
     scan.message = p.accepted
       ? (p.consumed ? '出牌成功，天降陨石已生效' : '已锁定')
@@ -98,7 +100,7 @@ export function createPhoneGateway({ game, drain, advance, port }) {
         return;
       }
       if (req.method === 'GET' && url.pathname === '/api/phone-monitor') {
-        json(res, { ...snapshot(), scans: [...scans.values()].slice(-20).reverse().map(publicScan) });
+        json(res, { ...snapshot(), latest_accepted: [...latestAccepted.values()].filter((s) => s.match_id === game.match).map(publicScan), scans: [...scans.values()].slice(-20).reverse().map(publicScan) });
         return;
       }
       if (req.method === 'POST' && url.pathname === '/api/phone/connect') {

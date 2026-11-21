@@ -60,9 +60,11 @@ test('HTTP scans are authenticated, idempotent and preserve game rejection', asy
   assert.equal(secret.data.label, '路线牌');
   const monitor = (await request('/api/phone-monitor')).data;
   assert.equal(monitor.phones[0].name, 'test');
+  assert.deepEqual(monitor.latest_accepted.map(s => [s.side, s.label]), [['黄方', '废弃栈道']]);
   const polled = await request('/api/card-scans/scan-1', 'GET', undefined, token);
   assert.equal(polled.data.status, 'accepted');
   game.reset();
+  assert.deepEqual((await request('/api/phone-monitor')).data.latest_accepted, []);
   assert.equal((await scan()).data.status, 'accepted');
   assert.equal(count, 2);
 });
