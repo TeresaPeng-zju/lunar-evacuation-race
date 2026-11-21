@@ -1,4 +1,5 @@
-export const CONFIG={warning:2,choiceWindow:7,collapseProbability:0.5,tieWindow:0.10};
+import {CONFIG} from './shared/rules.js';
+export {CONFIG};
 export const length=p=>p.slice(1).reduce((n,v,i)=>n+Math.hypot(v[0]-p[i][0],v[1]-p[i][1]),0);
 const edge=(id,points,extra=0)=>({id,points,extra,length:length(points)});
 const common=[ [760,0],[790,0],[850,-90],[1000,-90],[1060,0] ];

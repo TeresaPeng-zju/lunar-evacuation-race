@@ -39,7 +39,7 @@ node experiments/unity-visual-check/prepare.mjs
 
 最小验证不接机器人、不发运动命令。若视觉结果支持后续试接：JS `engine.js` 继续负责现有规则；Unity 仅消费渲染快照、播放带事件ID和比赛时间的表现，输入以意图返回现有规则入口。不要再建立一套 C# 竞赛状态机或用 Unity Physics 推导路线。
 
-地面屏继续单独使用标定后的二维/正交映射；观众相机、震屏和装饰不进入地面坐标。现有硬件文档仍是 v0.1 草案，不能误称已有实车连接。硬件负责沿路线自动行驶，本地服务处理相机、路线确认与故障停车；更换视觉引擎不会改变这一边界。Unity Web 受浏览器网络约束，新增 JS 桥接或网络适配需要单独验证。[Unity Web 网络说明](https://docs.unity.com/en-us/engine/6000.0/manual/platform-specific/webgl/develop/networking)
+地面屏继续单独使用标定后的二维/正交映射；观众相机、震屏和装饰不进入地面坐标。现有 [硬件联调沙盒](../../docs/hardware-integration.md) 已实现游戏端协议与无电机参考客户端，实际相机与电机仍待硬件端接入。硬件端负责相机定位、沿路线自动行驶和本地停车，游戏端负责路线事务与规则；更换视觉引擎不会改变这一边界。Unity Web 受浏览器网络约束，新增 JS 桥接或网络适配需要单独验证。[Unity Web 网络说明](https://docs.unity.com/en-us/engine/6000.0/manual/platform-specific/webgl/develop/networking)
 
 ## 6. 决策门槛
 

@@ -1,0 +1,11 @@
+{
+  "parameters_verified": false,
+  "calibration_id": "REPLACE_WITH_MEASURED_CALIBRATION",
+  "map_revision": "physical-v0.3-sandbox.1",
+  "board": {"width_cm": 59.8, "height_cm": 33.6},
+  "max_speed_cm_s": 2,
+  "combined_error_cm": null,
+  "braking_distance_cm": null,
+  "pose_stale_ms": 150,
+  "tie_ms": null
+}

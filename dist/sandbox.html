@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Moonfall · 硬件联调沙盒</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./sandbox/style.css" />
+    <script type="module" src="./sandbox/app.js"></script>
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="./sandbox.html"
+        ><span class="brandmark">M</span> MOONFALL <small>月球撤离赛</small></a
+      ><span class="badge" id="mode">连接中</span
+      ><span id="connection" class="connection">本地服务连接中…</span
+      ><a href="./sandbox.html?floor=1" target="_blank">打开行驶屏 ↗</a
+      ><a href="./visual-lab.html">3D 样板 ↗</a>
+    </header>
+    <main>
+      <section class="heading">
+        <div>
+          <p class="eyebrow">HARDWARE SANDBOX / V0.3</p>
+          <h1>先让真实路线跑通。</h1>
+          <p>三段折返 · 两车独立换图 · 落石实际绕行</p>
+        </div>
+        <div class="clock">
+          <span id="status">待机</span><strong id="time">00:00.00</strong
+          ><small>比赛时钟 · <span id="speed-label">1×</span></small>
+        </div>
+      </section>
+      <div id="notice" class="notice">
+        当前为理想运动模拟。屏面 59.8 × 33.6 cm，车体 6 × 6 cm；实车参数须由硬件端验证。
+      </div>
+      <div class="workspace">
+        <section class="scene-column">
+          <div class="panel map-panel">
+            <div class="panel-head">
+              <h2>行驶屏坐标预览</h2>
+              <span>原点左上角 · cm</span
+              ><label><input type="checkbox" id="envelopes" checked /> 车体包络</label>
+            </div>
+            <div id="board-wrap">
+              <svg
+                id="board"
+                viewBox="0 0 59.8 33.6"
+                preserveAspectRatio="xMidYMid meet"
+                role="img"
+                aria-label="59.8×33.6 厘米双车道实体赛道"
+              ></svg>
+            </div>
+            <div class="map-footer">
+              <span>0° →　90° ↓　−180° ←</span><span>实线：锁定路线　虚线：已准备分支</span
+              ><span>59.8 × 33.6 cm</span>
+            </div>
+          </div>
+          <div id="rosters" class="rosters"></div>
+          <div class="panel timeline">
+            <div class="panel-head">
+              <h2>连续赛程</h2>
+              <span>展示进度不参与定位与判胜</span>
+            </div>
+            <div id="progress"></div>
+          </div>
+          <div class="panel events">
+            <div class="panel-head">
+              <h2>事件记录</h2>
+              <a href="/api/trace" download="moonfall-session.json">导出本局消息 ↓</a>
+            </div>
+            <div id="events"></div>
+          </div>
+        </section>
+        <aside>
+          <section class="panel console">
+            <div class="panel-head">
+              <h2>联调控制</h2>
+              <span id="authority">主控</span>
+            </div>
+            <ol class="steps">
+              <li>配置地图，核对标定与双车定位</li>
+              <li>选择开局路线，启动三段比赛</li>
+              <li>投石 / 月震选路，观察硬件回执</li>
+            </ol>
+            <div class="button-pair">
+              <button data-action="configure" id="configure">① 配置地图</button
+              ><button class="primary" data-action="start" id="start">② 双车发车</button>
+            </div>
+            <div class="button-pair">
+              <button data-action="pause" id="pause">暂停</button
+              ><button data-action="stop" class="danger" id="stop">停止双车</button>
+            </div>
+            <div class="button-pair">
+              <button data-action="query" id="query">查询停机快照</button
+              ><button data-action="resume" id="resume">确认恢复</button>
+            </div>
+            <button class="wide subtle" data-action="reset" id="reset">重置新一局</button>
+          </section>
+          <section class="panel choices">
+            <div class="panel-head">
+              <h2>玩家操作</h2>
+              <span id="choice-window">等待月震</span>
+            </div>
+            <div id="players"></div>
+          </section>
+          <section class="panel debug" id="simulation-tools">
+            <div class="panel-head">
+              <h2>模拟测试</h2>
+              <span>不连接电机</span>
+            </div>
+            <div class="field">
+              <label for="speed">模拟时钟</label
+              ><select id="speed">
+                <option value="1">1× 实时</option>
+                <option value="4">4× 加速</option>
+                <option value="8">8× 加速</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="aftershock">本局余震</label
+              ><select id="aftershock">
+                <option value="random">50% 随机</option>
+                <option value="stable">固定稳定</option>
+                <option value="collapse">固定塌陷</option>
+              </select>
+            </div>
+            <div class="inject">
+              <button data-inject="drop_pose">蓝车丢定位</button
+              ><button data-inject="invalid_pose">无效定位</button
+              ><button data-inject="reject_next_route">拒绝下一路线</button
+              ><button data-inject="drop_results">丢失执行回执</button>
+            </div>
+            <button data-inject="clear" class="wide subtle">清除模拟故障</button>
+            <p class="hint">
+              恢复顺序：清除故障 → 查询快照 → 确认恢复。结果未知或状态不一致时保持停机。
+            </p>
+          </section>
+          <section class="panel link-info">
+            <div class="panel-head">
+              <h2>接口状态</h2>
+              <a href="/api/map" target="_blank">路线 JSON ↗</a>
+            </div>
+            <dl id="link-info"></dl>
+            <details>
+              <summary>最近命令与回执</summary>
+              <div id="commands"></div>
+            </details>
+          </section>
+        </aside>
+      </div>
+    </main>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <div class="floor-tools">
+      <button id="fullscreen">进入全屏</button><span id="floor-status">只读行驶屏 · 等待状态</span>
+    </div>
+  </body>
+</html>
