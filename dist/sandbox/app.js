@@ -55,6 +55,14 @@ function connect() {
     const m = JSON.parse(data);
     lastReceived = performance.now();
     if (m.type === 'welcome') {
+      if (!floor) {
+        const url = new URL('/', location.href);
+        url.port = m.phonePort ?? (Number(location.port) + 2);
+        url.search = 'view=summary';
+        const summary = $('reader-summary');
+        if (summary.src !== url.href) summary.src = url.href;
+        summary.hidden = false;
+      }
       controller = m.controller;
       $('authority').textContent = controller ? '主控' : '只读窗口';
     } else if (m.type === 'state') {

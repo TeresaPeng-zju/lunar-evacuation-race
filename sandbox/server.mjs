@@ -5,6 +5,7 @@ import { resolve, extname, sep } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { WebSocketServer, WebSocket } from 'ws';
 import { Sandbox } from './engine.mjs';
+import { createPhoneGateway } from './phone-gateway.mjs';
 import { HardwareSimulator } from './simulator.mjs';
 import { manifest } from '../dist/sandbox/geometry.js';
 
@@ -29,6 +30,8 @@ try {
 }
 const root = resolve(fileURLToPath(new URL('../dist/', import.meta.url)));
 const { port, host, mode } = options;
+const phonePort = Number(process.env.MOONFALL_PHONE_PORT || (port + 2));
+let phoneGateway = null;
 let hardware = null,
   simulator = null,
   queue = [],
@@ -38,6 +41,7 @@ const game = new Sandbox({
   mode,
   profile,
   send: (m) => {
+    phoneGateway?.receive(m);
     if (simulator) queue.push(() => simulator.receive(m));
     else if (hardware?.readyState === WebSocket.OPEN) hardware.send(JSON.stringify(m));
   },
@@ -168,7 +172,7 @@ sockets.on('connection', (ws, req) => {
   const send = (value) => {
     if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(value));
   };
-  send({ type: 'welcome', controller: ws.isController, mode });
+  send({ type: 'welcome', controller: ws.isController, mode, phonePort });
   send({ type: 'state', ...game.state(), speed });
   ws.on('message', (raw) => {
     try {
@@ -287,6 +291,10 @@ const timer = setInterval(() => {
   }
 }, 20);
 if (mode === 'simulation') setupSimulator();
+phoneGateway = createPhoneGateway({
+  game, drain, advance: advanceExternalClock,
+  port: phonePort,
+});
 server.on('error', (error) => {
   clearInterval(timer);
   if (error.code === 'EADDRINUSE') {
@@ -314,6 +322,8 @@ Ctrl+C 停止服务
 `),
 );
 function shutdown() {
+  phoneGateway?.server.close();
+  phoneGateway?.server.closeAllConnections();
   game.stop();
   drain();
   clearInterval(timer);
