@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MoonFall 手机读卡连接</title>
+<style>
+body{margin:0;background:#0b1321;color:#f2f6ff;font:16px system-ui,sans-serif}
+main{max-width:850px;margin:48px auto;padding:0 24px}h1{font-size:30px}
+section{background:#131f31;border:1px solid #30445c;border-radius:18px;padding:24px;margin:18px 0}
+h2{font-size:18px;margin:0 0 16px}p{line-height:1.7;overflow-wrap:anywhere}
+#connection{color:#83e8d2}code{font-size:18px}li{padding:14px 0;border-bottom:1px solid #30445c;line-height:1.6}
+ul{list-style:none;padding:0}small{color:#adbdd1}a{color:#83e8d2}
+</style>
+<main>
+<h1>手机读卡连接</h1>
+<section>
+<h2>连接电脑</h2>
+<p>手机与电脑连接同一个 Wi-Fi，在「MoonFall 读卡」中填写下面的地址。</p>
+<div id="addresses"></div>
+<p id="connection">正在获取连接状态…</p>
+<p id="match"></p>
+<p id="game"></p>
+</section>
+<section><h2>最近刷卡</h2><ul id="scans"><li>等待手机刷卡</li></ul></section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+async function update(){
+ try{
+  const r=await fetch('/api/phone-monitor',{cache:'no-store'});
+  if(!r.ok)throw Error();
+  const s=await r.json();
+  $('addresses').replaceChildren(...s.addresses.map(address=>{
+    const p=document.createElement('p');const code=document.createElement('code');
+    code.textContent=address;p.append(code);return p;
+  }));
+  $('connection').textContent=s.phones.length?'已连接 '+s.phones.map(p=>p.name).join('、'):'等待手机连接';
+  $('match').textContent='当前比赛 '+s.match_id;
+  $('game').textContent='游戏状态 '+s.game_status+(s.ready?' · 可接收刷卡':' · 等待游戏或硬件就绪');
+  $('scans').replaceChildren(...(s.scans.length?s.scans:[{message:'等待手机刷卡'}]).map(scan=>{
+    const li=document.createElement('li');
+    li.textContent=[scan.side,scan.label,scan.message].filter(Boolean).join(' · ');
+    return li;
+  }));
+ }catch{$('connection').textContent='与电脑服务断开，正在重连…'}
+}
+update();setInterval(update,2000);
+</script>
+</html>
