@@ -23,7 +23,7 @@ export function anchor(stage, x, localY, id) {
   return unfold(stage, [x, CY[ROBOTS[id]] + localY], ROBOTS[id]);
 }
 export function poseFor(r) {
-  const key = r.route_key || `s1_${r.opening}`;
+  const key = r.route_key || r.preview_route || `s1_${r.opening}`;
   const route = routeFor(r.robot_id, key);
   if (route.stage_id !== r.stage_id) throw Error('路线段与硬件状态不一致');
   // Never extrapolate. In-place turns stay at the shared display handoff anchor.
@@ -36,6 +36,7 @@ export function poseFor(r) {
   return { x: q[0], y: q[1], angle, stage: r.stage_id, route: key, s_cm: s };
 }
 export function selectedRoutes(r, state) {
+  if (state.endpoint_only) return ['s1_ab', 's2_ab', 's3_ab'];
   const first = `s1_${r.opening}${r.rock?.stage_id === 1 ? '_rock' : ''}`;
   let final = state.locked ? (r.final === 'safe' ? 'safe' : state.aftershock || 'stable') : null;
   if (final) final = `s3_${final}${r.rock?.stage_id === 3 ? '_rock' : ''}`;
@@ -74,8 +75,10 @@ export function toView(state) {
         distance:
           (r.s_cm +
             (r.stage_id > 1
-              ? routeFor(r.robot_id, `s1_${r.opening}${r.rock?.stage_id === 1 ? '_rock' : ''}`)
-                  .length_cm
+              ? routeFor(
+                  r.robot_id,
+                  r.preview_route || `s1_${r.opening}${r.rock?.stage_id === 1 ? '_rock' : ''}`,
+                ).length_cm
               : 0) +
             (r.stage_id > 2 ? routeFor(r.robot_id, 's2').length_cm : 0)) *
           16,

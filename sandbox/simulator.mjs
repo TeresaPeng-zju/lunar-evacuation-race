@@ -151,6 +151,12 @@ export class RouteProtocol {
             p.expected_route_revision !== (r.slots[p.stage_id]?.route_revision || 0)
           )
             throw Error('EXPECTED_ROUTE_MISMATCH');
+          if (
+            !this.map?.routes.some(
+              (route) => route.robot_id === p.robot_id && route.key === p.route.key,
+            )
+          )
+            throw Error('ROUTE_NOT_IN_CONFIGURED_MAP');
           const route = routeFor(p.robot_id, p.route.key);
           if (JSON.stringify(route) !== JSON.stringify(p.route))
             throw Error('ROUTE_CONTENT_MISMATCH');

@@ -30,7 +30,7 @@ try {
 }
 const root = resolve(fileURLToPath(new URL('../dist/', import.meta.url)));
 const { port, host, mode } = options;
-const phonePort = Number(process.env.MOONFALL_PHONE_PORT || (port + 2));
+const phonePort = Number(process.env.MOONFALL_PHONE_PORT || port + 2);
 let phoneGateway = null;
 let hardware = null,
   simulator = null,
@@ -92,7 +92,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     if (url.pathname === '/api/map') {
-      json(res, manifest());
+      json(res, manifest(game.endpointOnly));
       return;
     }
     if (url.pathname === '/api/trace') {
@@ -126,7 +126,8 @@ server.on('upgrade', (req, socket, head) => {
     origin = req.headers.origin;
   if (
     !['/ui', '/hardware'].includes(path) ||
-    (origin && !['http://127.0.0.1:' + port, 'http://localhost:' + port].includes(origin) &&
+    (origin &&
+      !['http://127.0.0.1:' + port, 'http://localhost:' + port].includes(origin) &&
       !(path === '/hardware' && origin === 'http://127.0.0.1:4182'))
   ) {
     socket.destroy();
@@ -157,9 +158,14 @@ sockets.on('connection', (ws, req) => {
       try {
         advanceExternalClock();
         const message = JSON.parse(raw.toString());
-        if (req.headers.origin === 'http://127.0.0.1:4182' && message.type === 'hardware.hello' &&
-            (message.payload?.adapter_mode !== 'camera' || message.payload?.actuators_enabled !== false)) {
-          ws.close(1008, 'Camera mode required'); return;
+        if (
+          req.headers.origin === 'http://127.0.0.1:4182' &&
+          message.type === 'hardware.hello' &&
+          (message.payload?.adapter_mode !== 'camera' ||
+            message.payload?.actuators_enabled !== false)
+        ) {
+          ws.close(1008, 'Camera mode required');
+          return;
         }
         game.receive(message);
       } catch {
@@ -191,7 +197,7 @@ sockets.on('connection', (ws, req) => {
         p = m.payload || {};
       switch (m.action) {
         case 'configure':
-          game.configure();
+          game.configure(p.endpoint_only);
           break;
         case 'opening':
           game.chooseOpening(p.robot_id, p.choice);
@@ -301,7 +307,9 @@ const timer = setInterval(() => {
 }, 20);
 if (mode === 'simulation') setupSimulator();
 phoneGateway = createPhoneGateway({
-  game, drain, advance: advanceExternalClock,
+  game,
+  drain,
+  advance: advanceExternalClock,
   port: phonePort,
 });
 server.on('error', (error) => {

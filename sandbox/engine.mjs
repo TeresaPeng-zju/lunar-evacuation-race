@@ -48,6 +48,7 @@ export class Sandbox {
       throw Error('先停止并确认双车停稳，再重置');
     this.match = uid('match');
     this.status = 'idle';
+    this.endpointOnly = false;
     this.elapsed = 0;
     this.quake = null;
     this.locked = false;
@@ -165,8 +166,10 @@ export class Sandbox {
     try {
       switch (m.type) {
         case 'hardware.hello': {
-          const required = p.adapter_mode === 'camera' && p.actuators_enabled === false
-            ? ['pose.frame','route.preview'] : CAPABILITIES;
+          const required =
+            p.adapter_mode === 'camera' && p.actuators_enabled === false
+              ? ['pose.frame', 'route.preview']
+              : CAPABILITIES;
           if (!required.every((x) => p.capabilities?.includes(x)))
             throw Error('硬件缺少三段模式必需能力');
           if (p.board?.width_cm !== BOARD.width_cm || p.board?.height_cm !== BOARD.height_cm)
@@ -260,15 +263,17 @@ export class Sandbox {
         throw Error('实测参数必须为有效数值');
     }
   }
-  configure() {
+  configure(endpointOnly = this.endpointOnly) {
     if (this.status !== 'idle') throw Error('只能在待机配置');
     this.assertReady();
+    if (typeof endpointOnly !== 'boolean') throw Error('测试模式参数无效');
     this.configured = false;
+    this.endpointOnly = endpointOnly;
     this.configAcks = 0;
     this.command(
       'map.configure',
       {
-        ...manifest(),
+        ...manifest(this.endpointOnly),
         parameters_verified: !!this.profile?.parameters_verified,
         calibration_id: this.hello.calibration_id,
       },
@@ -290,11 +295,15 @@ export class Sandbox {
     this.previewOpeningRoutes();
   }
   previewOpeningRoutes() {
-    if (this.hello?.adapter_mode === 'camera') this.emit('route.preview', {
-      routes: ROBOTS.map(id => routeFor(id, 's1_' + this.robots[id].opening)),
-    });
+    if (this.hello?.adapter_mode === 'camera')
+      this.emit('route.preview', {
+        routes: ROBOTS.map((id) =>
+          routeFor(id, this.endpointOnly ? 's1_ab' : 's1_' + this.robots[id].opening),
+        ),
+      });
   }
   chooseOpening(id, choice) {
+    if (this.endpointOnly) throw Error('直线测试使用本段起终点');
     if (this.status !== 'idle' || !['beacon', 'outer'].includes(choice) || !this.robots[id])
       throw Error('开局路线已锁定或无效');
     this.robots[id].opening = choice;
@@ -321,8 +330,11 @@ export class Sandbox {
     this.startCommandSent = false;
     this.handoffAcks = 0;
     for (const id of ROBOTS) {
-      this.prepare(id, 1, `s1_${this.robots[id].opening}`, { kind: 'initial' });
-      this.prepare(id, 2, 's2', { kind: 'preload' });
+      this.prepare(id, 1, this.endpointOnly ? 's1_ab' : `s1_${this.robots[id].opening}`, {
+        kind: 'initial',
+      });
+      this.prepare(id, 2, this.endpointOnly ? 's2_ab' : 's2', { kind: 'preload' });
+      if (this.endpointOnly) this.prepare(id, 3, 's3_ab', { kind: 'preload' });
       for (const [from, to, x, heading] of [
         [1, 2, 53.8, -180],
         [2, 3, 16, 0],
@@ -347,11 +359,12 @@ export class Sandbox {
     }
   }
   maybeStart() {
+    const stages = this.endpointOnly ? [1, 2, 3] : [1, 2];
     if (
       this.status === 'starting' &&
       !this.startCommandSent &&
       this.handoffAcks === 4 &&
-      ROBOTS.every((id) => [1, 2].every((s) => this.robots[id].plans[s]?.armed))
+      ROBOTS.every((id) => stages.every((s) => this.robots[id].plans[s]?.armed))
     ) {
       this.startCommandSent = true;
       this.command(
@@ -619,14 +632,15 @@ export class Sandbox {
       if (q.calibration_id !== this.hello?.calibration_id || q.map_revision !== MAP_REVISION)
         throw Error('定位标定或地图版本不一致');
       if (r.last_capture_ms !== null && captured <= r.last_capture_ms) continue;
-      if (this.hello?.adapter_mode !== 'camera' &&
+      if (
+        this.hello?.adapter_mode !== 'camera' &&
         Math.min(
           q.x_cm,
           59.8 - q.x_cm,
           q.y_cm - (CY[q.robot_id] - 8.4),
           CY[q.robot_id] + 8.4 - q.y_cm,
         ) <
-        ENVELOPE - 1e-6
+          ENVELOPE - 1e-6
       )
         throw Error('车体及误差包络越界');
       if (activeStatuses.includes(this.status) || this.status === 'paused') {
@@ -667,7 +681,7 @@ export class Sandbox {
     if (r.phase !== 'RUNNING' || !prev.valid) return;
     const p = r.pose,
       cy = CY[r.robot_id];
-    if (r.stage_id === 1 && r.opening === 'beacon') {
+    if (!this.endpointOnly && r.stage_id === 1 && r.opening === 'beacon') {
       if (!r.beacon && Math.hypot(p.x_cm - 15, p.y_cm - (cy - 3)) <= 0.8) {
         r.beacon = true;
         r.gate = true;
@@ -688,6 +702,7 @@ export class Sandbox {
     }
     if (
       r.stage_id === 2 &&
+      !this.endpointOnly &&
       prev.x_cm > 51.8 &&
       p.x_cm <= 51.8 &&
       Math.abs(p.y_cm - cy) <= 0.8 &&
@@ -879,6 +894,7 @@ export class Sandbox {
     this.event('choice', '末段路线同时公开；未选默认归航环路');
   }
   legalRock(attacker) {
+    if (this.endpointOnly) return null;
     const a = this.robots[attacker];
     if (this.status !== 'running' || !a?.card || a.card_pending) return null;
     const r = this.robots[ROBOTS.find((id) => id !== attacker)];
@@ -1115,6 +1131,7 @@ export class Sandbox {
       handshake: !!this.hello,
       clock: this.sync,
       configured: this.configured,
+      endpoint_only: this.endpointOnly,
       actuators_enabled: this.hello?.actuators_enabled !== false,
       adapter_mode: this.hello?.adapter_mode || null,
       calibration_id: this.hello?.calibration_id || null,
@@ -1136,7 +1153,8 @@ export class Sandbox {
         const { secret, plans, ...publicR } = r;
         return {
           ...publicR,
-          pose: {...r.pose, valid: r.pose.valid && this.link && this.now-r.last_pose_ms<=150},
+          preview_route: this.endpointOnly ? 's1_ab' : undefined,
+          pose: { ...r.pose, valid: r.pose.valid && this.link && this.now - r.last_pose_ms <= 150 },
           submitted: !!secret,
           plans: Object.fromEntries(
             Object.entries(plans).map(([s, j]) => [

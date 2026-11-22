@@ -203,8 +203,13 @@ const cache = new Map();
 export function routeFor(robot, key) {
   const id = `${robot}/${key}`;
   if (cache.has(id)) return cache.get(id);
-  if (!controls[key] || !ROBOTS.includes(robot)) throw Error('UNKNOWN_ROUTE');
-  const vertices = controls[key].map(([x, y]) => [x, y + CY[robot]]),
+  const endpointSource = { s1_ab: 's1_beacon', s2_ab: 's2', s3_ab: 's3_safe' }[key];
+  const source = controls[endpointSource || key];
+  if (!Array.isArray(source) || !ROBOTS.includes(robot)) throw Error('UNKNOWN_ROUTE');
+  const vertices = (endpointSource ? [source[0], source.at(-1)] : source).map(([x, y]) => [
+      x,
+      y + CY[robot],
+    ]),
     r = rounded(vertices);
   const route = {
     route_id: id,
@@ -218,7 +223,7 @@ export function routeFor(robot, key) {
     stop_pose_cm: {
       x_cm: vertices.at(-1)[0],
       y_cm: vertices.at(-1)[1],
-      heading_deg: key === 's2' ? -180 : 0,
+      heading_deg: key[1] === '2' ? -180 : 0,
     },
     // Exact corridor definition: union of discs along the analytic centerline, not a polygon shortcut.
     swept_corridor: {
@@ -227,9 +232,11 @@ export function routeFor(robot, key) {
       includes_error_cm: 0.8,
     },
   };
-  route.waypoints_cm = Array.from({ length: Math.ceil(r.length_cm / 0.1) + 1 }, (_, i) =>
-    sample(route, Math.min(i * 0.1, r.length_cm)),
-  );
+  route.waypoints_cm = endpointSource
+    ? [sample(route, 0), sample(route, r.length_cm)]
+    : Array.from({ length: Math.ceil(r.length_cm / 0.1) + 1 }, (_, i) =>
+        sample(route, Math.min(i * 0.1, r.length_cm)),
+      );
   cache.set(id, route);
   return route;
 }
@@ -251,7 +258,7 @@ export function rockSite(stage, opening, robot) {
     blocked_edge_id: `${robot}/s${stage}/${name}/direct`,
   };
 }
-export function manifest() {
+export function manifest(endpointOnly = false) {
   return {
     protocol: 'lunar-hw/0.3-sandbox',
     map_revision: MAP_REVISION,
@@ -290,6 +297,10 @@ export function manifest() {
         rockSite(3, null, robot),
       ],
     })),
-    routes: ROBOTS.flatMap((robot) => Object.keys(controls).map((key) => routeFor(robot, key))),
+    routes: ROBOTS.flatMap((robot) =>
+      (endpointOnly ? ['s1_ab', 's2_ab', 's3_ab'] : Object.keys(controls)).map((key) =>
+        routeFor(robot, key),
+      ),
+    ),
   };
 }

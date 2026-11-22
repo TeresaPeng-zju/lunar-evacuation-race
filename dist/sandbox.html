@@ -66,8 +66,16 @@
           <details class="physical-inspector">
             <summary>实车定位与运动控制</summary>
             <p>本机启动 <code>npm run rover</code> 和 <code>npm run camera</code> 后打开。</p>
-            <p><a id="camera-link" href="http://127.0.0.1:4182/?camera=icspring&amp;control=1&amp;rover=192.168.31.157" target="_blank" rel="noopener">蓝车定位与 A→B 直线控制 ↗</a>
-            · <a href="http://127.0.0.1:4183/" target="_blank" rel="noopener">小车手动遥控 ↗</a></p>
+            <p>
+              <a
+                id="camera-link"
+                href="http://127.0.0.1:4182/?camera=icspring&amp;control=1&amp;rover=192.168.31.157"
+                target="_blank"
+                rel="noopener"
+                >蓝车定位与 A→B 直线控制 ↗</a
+              >
+              · <a href="http://127.0.0.1:4183/" target="_blank" rel="noopener">小车手动遥控 ↗</a>
+            </p>
           </details>
           <details class="physical-inspector">
             <summary>展开厘米坐标与车体包络检查</summary>
@@ -114,6 +122,9 @@
               <h2>联调控制</h2>
               <span id="authority">主控</span>
             </div>
+            <label
+              ><input type="checkbox" id="endpoint-only" /> A→B 直线测试（每段只取起终点）</label
+            >
             <ol class="steps">
               <li>配置地图，核对标定与双车定位</li>
               <li>选择开局路线，启动三段比赛</li>

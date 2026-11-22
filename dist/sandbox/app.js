@@ -92,7 +92,7 @@ function connect() {
         cameraURL.searchParams.set('gamePort', location.port || '4174');
         camera.href = cameraURL.href;
         const url = new URL('/', location.href);
-        url.port = m.phonePort ?? (Number(location.port) + 2);
+        url.port = m.phonePort ?? Number(location.port) + 2;
         url.search = 'view=summary';
         const summary = $('reader-summary');
         if (summary.src !== url.href) summary.src = url.href;
@@ -145,7 +145,14 @@ $('players').innerHTML = ROBOTS.map(
 ).join('');
 document
   .querySelectorAll('[data-action]')
-  .forEach((b) => b.addEventListener('click', () => send(b.dataset.action)));
+  .forEach((b) =>
+    b.addEventListener('click', () =>
+      send(
+        b.dataset.action,
+        b.dataset.action === 'configure' ? { endpoint_only: $('endpoint-only').checked } : {},
+      ),
+    ),
+  );
 document
   .querySelectorAll('[data-choice]')
   .forEach((b) =>
@@ -186,7 +193,7 @@ function draw() {
         const id = r.robot_id,
           cy = CY[id],
           col = colors[id];
-        const key = r.route_key || `s1_${r.opening}`,
+        const key = r.route_key || r.preview_route || `s1_${r.opening}`,
           pending = r.plans[r.stage_id]?.key;
         const route = path(id, key),
           site = rockSite(r.stage_id, r.opening, id);
@@ -197,7 +204,7 @@ function draw() {
           text(1, cy - 6.7, `${i ? '02 黄车道' : '01 蓝车道'}  /  第 ${r.stage_id} 段`, col, 0.7) +
           text(45, cy - 6.7, phaseLabels[r.phase] || r.phase, col, 0.65);
         if (r.stage_id === 1) {
-          if (r.opening === 'beacon') {
+          if (!state.endpoint_only && r.opening === 'beacon') {
             content +=
               `<circle cx="15" cy="${cy - 3}" r=".8" fill="${r.beacon ? '#9fdcc9' : '#2b6c6f'}"/>` +
               text(13, cy - 4.8, '信标', col, 0.55);
@@ -205,7 +212,7 @@ function draw() {
           }
           content += `<circle cx="53.8" cy="${cy}" r="${ENVELOPE}" stroke="${col}" fill="none" stroke-width=".08" stroke-dasharray=".3 .3"/>`;
         }
-        if (r.stage_id === 2)
+        if (!state.endpoint_only && r.stage_id === 2)
           content +=
             `<path d="M51.8 ${cy - 2}v4" stroke="#8abcc0" stroke-width=".15"/>` +
             text(41, cy - 3.2, '月震触发线  ←', col) +
@@ -229,7 +236,7 @@ function draw() {
                 col,
               );
         }
-        if ([1, 3].includes(r.stage_id) && !r.rock)
+        if (!state.endpoint_only && [1, 3].includes(r.stage_id) && !r.rock)
           content += `<circle cx="${site.center_cm[0]}" cy="${site.center_cm[1]}" r=".5" fill="none" stroke="#ac9276" stroke-width=".08" stroke-dasharray=".12 .12"/>`;
         if (r.rock && !r.rock.done && r.rock.stage_id === r.stage_id) {
           const [x, y] = r.rock.center_cm;
@@ -267,10 +274,13 @@ function render() {
     ? `暂停原因：${s.fault}`
     : s.winner
       ? `${s.winner === 'tie' ? '双车并列' : names[s.winner] + '率先'}抵达；车辆继续按路线安全停车。`
-      : s.adapter_mode === 'camera' ? '相机联调 · 显示实测位姿；选择开局路线可在相机画面预览。'
-      : s.mode === 'simulation'
-        ? '当前为理想运动模拟。屏面 59.8 × 33.6 cm，车体 6 × 6 cm；实车参数须由硬件端验证。'
-        : `外部接口模式 · ${s.actuators_enabled ? '实体执行器' : '无电机适配器'} · ${s.parameters_verified ? '已载入实测参数' : '尚未载入实测参数，实体发车受限'}`;
+      : s.endpoint_only
+        ? 'A→B 直线测试 · 两车沿各自车道直行，段末回转或停车。'
+        : s.adapter_mode === 'camera'
+          ? '相机联调 · 显示实测位姿；选择开局路线可在相机画面预览。'
+          : s.mode === 'simulation'
+            ? '当前为理想运动模拟。屏面 59.8 × 33.6 cm，车体 6 × 6 cm；实车参数须由硬件端验证。'
+            : `外部接口模式 · ${s.actuators_enabled ? '实体执行器' : '无电机适配器'} · ${s.parameters_verified ? '已载入实测参数' : '尚未载入实测参数，实体发车受限'}`;
   $('rosters').innerHTML = s.robots
     .map(
       (r, i) =>
@@ -279,7 +289,10 @@ function render() {
     .join('');
   $('progress').innerHTML = s.robots
     .map((r, i) => {
-      const total = routeFor(r.robot_id, r.route_key || `s1_${r.opening}`).length_cm,
+      const total = routeFor(
+          r.robot_id,
+          r.route_key || r.preview_route || `s1_${r.opening}`,
+        ).length_cm,
         percent = ((r.stage_id - 1 + Math.min(1, r.s_cm / total)) / 3) * 100;
       return `<div class="track-label"><span>${names[r.robot_id]}　${r.stage_id === 1 ? '开局路线 →' : r.stage_id === 2 ? '月震衔接 ←' : '最后撤离 →'}</span><span>${r.finished_ms === null ? '驶向飞船' : time(r.finish_elapsed_ms) + ' 抵达'}</span></div><div class="progressbar ${i ? 'gold' : ''}"><i style="width:${percent}%"></i></div>`;
     })
@@ -295,7 +308,7 @@ function render() {
     b.disabled =
       !controller ||
       (b.dataset.kind === 'opening'
-        ? s.status !== 'idle'
+        ? s.endpoint_only || s.status !== 'idle'
         : s.status !== 'running' || s.quake_ms === null || s.locked || r.submitted);
     b.classList.toggle(
       'selected',
@@ -322,6 +335,8 @@ function render() {
             ? '暂无安全落点 · 卡牌保留'
             : '开赛后可投放';
   }
+  $('endpoint-only').disabled = !controller || s.configured || s.status !== 'idle';
+  if (s.configured) $('endpoint-only').checked = !!s.endpoint_only;
   const enabled = {
     configure: s.status === 'idle' && s.handshake && s.clock,
     start: s.status === 'idle' && s.configured && s.adapter_mode !== 'camera',

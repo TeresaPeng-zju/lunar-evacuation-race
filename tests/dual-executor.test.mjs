@@ -4,7 +4,7 @@ import { Sandbox } from '../sandbox/engine.mjs';
 import { DualExecutor } from '../hardware/executor/executor.mjs';
 import { SimulatedIO } from '../hardware/executor/simulated-io.mjs';
 
-function setup() {
+function setup(endpointOnly = false) {
   const q = [],
     io = new SimulatedIO(),
     events = [];
@@ -24,10 +24,10 @@ function setup() {
   };
   game.connect();
   flush();
-  game.configure();
+  game.configure(endpointOnly);
   flush();
   tick();
-  game.chooseOpening('rover-gold', 'outer');
+  if (!endpointOnly) game.chooseOpening('rover-gold', 'outer');
   game.start();
   flush();
   return { game, driver, io, events, tick };
@@ -153,4 +153,25 @@ test('real IO formats separate UDP commands and reads both firmware status endpo
     packets.slice(-2).map((p) => p[0]),
     ['0,0', '0,0'],
   );
+});
+
+test('endpoint-only dispatch sends just A and B and completes three straight legs in both lanes', () => {
+  const { game, driver, events, tick } = setup(true);
+  for (let i = 0; i < 7000 && game.status !== 'finished'; i++) {
+    tick();
+    assert.notEqual(game.status, 'paused', game.fault);
+    assert.equal(game.legalRock('rover-blue'), null);
+    for (const r of Object.values(driver.robots)) {
+      if (!r.current) continue;
+      const route = r.current.route;
+      assert.equal(route.segments.length, 1);
+      assert.equal(route.segments[0].kind, 'line');
+      assert.equal(route.waypoints_cm.length, 2);
+      assert.ok(Math.abs(r.pose.y_cm - route.waypoints_cm[0].y_cm) < 0.01);
+    }
+  }
+  assert.equal(game.status, 'finished');
+  assert.equal(game.quake, null);
+  assert.equal(events.filter((e) => e.state === 'READY').length, 4);
+  assert.equal(events.filter((e) => e.state === 'PARKED').length, 2);
 });

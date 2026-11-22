@@ -4,6 +4,7 @@ export function toPixel(x, y, width, height) {
   return [(x / BOARD.width_cm) * width, (y / BOARD.height_cm) * height];
 }
 export function variants(r, s) {
+  if (s.endpoint_only) return ['s' + r.stage_id + '_ab'];
   if (r.stage_id === 2) return ['s2'];
   if (r.stage_id === 1)
     return ['s1_beacon', 's1_outer', ...(r.rock?.stage_id === 1 ? [`s1_${r.opening}_rock`] : [])];
@@ -15,7 +16,7 @@ export function variants(r, s) {
   ];
 }
 export function currentRoute(r) {
-  return routeFor(r.robot_id, r.route_key || `s1_${r.opening}`);
+  return routeFor(r.robot_id, r.route_key || r.preview_route || `s1_${r.opening}`);
 }
 export function plateCrop(stage, robot, width, height) {
   return {
