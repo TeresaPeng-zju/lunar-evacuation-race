@@ -10,3 +10,5 @@ work/
 config/*.local.json
 sandbox/hardware-profile.local.json
 .playwright-cli/
+
+__pycache__/

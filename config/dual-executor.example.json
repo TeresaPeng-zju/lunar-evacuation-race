@@ -1,0 +1,16 @@
+{
+  "parameters_verified": false,
+  "calibration_id": null,
+  "map_revision": "physical-v0.3-sandbox.1",
+  "board": {"width_cm": 59.8, "height_cm": 33.6},
+  "max_speed_cm_s": 2,
+  "combined_error_cm": null,
+  "braking_distance_cm": null,
+  "pose_stale_ms": 150,
+  "tie_ms": null,
+  "camera": {"anchor_width_mm": 747, "anchor_height_mm": 337, "origin_x_mm": 74.5, "origin_y_mm": 0.5},
+  "vehicles": {
+    "rover-blue": {"ip": "192.168.31.157", "tag": 0, "heading_offset_deg": null, "forward_mm": null, "right_mm": null, "track_cm": null, "left_pct_per_cm_s": null, "right_pct_per_cm_s": null, "max_power": null},
+    "rover-gold": {"ip": "192.168.31.127", "tag": 1, "heading_offset_deg": null, "forward_mm": null, "right_mm": null, "track_cm": null, "left_pct_per_cm_s": null, "right_pct_per_cm_s": null, "max_power": null}
+  }
+}

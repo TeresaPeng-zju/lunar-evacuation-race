@@ -22,10 +22,13 @@ const canonical = (value) =>
         )
       : value;
 
-// Ideal hardware reference adapter. No motor driver and no browser-derived positions.
-export class HardwareSimulator {
+// Shared route transactions, session sequencing, and per-robot stage slots.
+export class RouteProtocol {
   constructor(send = () => {}) {
     this.send = send;
+    this.clockId = 'hardware-simulator';
+    this.calibrationId = 'sim-calibration-v03';
+    this.live = false;
     this.now = 100000;
     this.seq = 0;
     this.session = null;
@@ -58,9 +61,7 @@ export class HardwareSimulator {
       };
   }
   emit(type, payload) {
-    this.send(
-      wrap(type, payload, this.session, this.match, ++this.seq, this.now, 'hardware-simulator'),
-    );
+    this.send(wrap(type, payload, this.session, this.match, ++this.seq, this.now, this.clockId));
   }
   result(command, status, extra = {}) {
     const p = { command_id: command, status, occurred_hw_mono_ms: this.now, ...extra };
@@ -90,13 +91,13 @@ export class HardwareSimulator {
         capabilities: CAPABILITIES,
         board: BOARD,
         robot_ids: ROBOTS,
-        calibration_id: 'sim-calibration-v03',
-        parameters_verified: false,
-        actuators_enabled: false,
+        calibration_id: this.calibrationId,
+        parameters_verified: this.live,
+        actuators_enabled: this.live,
         body_cm: [6, 6],
         turn_in_place: true,
         pose_hz: 20,
-        clock_id: 'hardware-simulator',
+        clock_id: this.clockId,
       });
       return;
     }
@@ -219,30 +220,20 @@ export class HardwareSimulator {
           break;
         }
         case 'robot.pause':
-          this.paused = true;
-          ROBOTS.forEach((id) => (this.robots[id].stopped = true));
-          this.result(p.command_id, 'completed', {
-            robots: ROBOTS.map((robot_id) => ({ robot_id, stopped_confirmed: true })),
-          });
-          break;
         case 'robot.stop':
-          this.running = false;
           this.paused = true;
           this.startCommand = null;
-          ROBOTS.forEach((id) => {
-            const q = this.robots[id];
-            q.stopped = true;
-            q.slots = {};
-          });
-          this.result(p.command_id, 'completed', {
-            robots: ROBOTS.map((robot_id) => ({ robot_id, stopped_confirmed: true })),
-          });
+          if (m.type === 'robot.stop') {
+            this.running = false;
+            for (const q of Object.values(this.robots)) q.slots = {};
+          }
+          this.stopForCommand(p.command_id);
           break;
         case 'state.query':
           this.emit('hardware.snapshot', {
             reply_to_command_id: p.command_id,
             map_revision: MAP_REVISION,
-            calibration_id: 'sim-calibration-v03',
+            calibration_id: this.calibrationId,
             robots: ROBOTS.map((id) => {
               const q = this.robots[id];
               return {
@@ -280,6 +271,12 @@ export class HardwareSimulator {
       this.result(p.command_id, 'rejected', { reason: e.message });
     }
   }
+  stopForCommand(id) {
+    for (const q of Object.values(this.robots)) q.stopped = true;
+    this.result(id, 'completed', {
+      robots: ROBOTS.map((robot_id) => ({ robot_id, stopped_confirmed: true })),
+    });
+  }
   activate(r, plan, reply = plan.commit_id) {
     r.current = plan;
     r.stage = plan.stage_id;
@@ -308,7 +305,7 @@ export class HardwareSimulator {
     for (const r of Object.values(this.robots)) r.stopped = true;
     this.emit('fault', { code, stopped_confirmed: true });
   }
-  tick(dt) {
+  advanceClock(dt) {
     this.now += dt;
     if (this.running && !this.paused && this.now - (this.lastHeartbeat || this.now) > 500)
       this.localFault('LOCAL_HEARTBEAT_TIMEOUT');
@@ -320,6 +317,13 @@ export class HardwareSimulator {
       this.result(p.command_id, 'applied');
       for (const id of ROBOTS) this.activate(this.robots[id], this.robots[id].slots[1]);
     }
+  }
+}
+
+// Ideal simulator used by the game sandbox. No motor driver.
+export class HardwareSimulator extends RouteProtocol {
+  tick(dt) {
+    this.advanceClock(dt);
     if (this.running && !this.paused) {
       this.activeTime += dt;
       for (const r of Object.values(this.robots)) {
@@ -411,7 +415,7 @@ export class HardwareSimulator {
           stage_instance_id: r.instances[r.stage],
           route_revision: r.revision,
           map_revision: MAP_REVISION,
-          calibration_id: 'sim-calibration-v03',
+          calibration_id: this.calibrationId,
           quality: 1,
         };
       }),
