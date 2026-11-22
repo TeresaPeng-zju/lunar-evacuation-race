@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node sandbox/server.mjs",
     "hardware": "node sandbox/server.mjs --hardware",
+    "rover": "node hardware/rover/server.cjs",
+    "camera": "sh hardware/camera/start.sh",
     "mock": "node sandbox/mock-client.mjs",
     "dev": "node sandbox/server.mjs",
     "test": "node --test tests/*.test.mjs",
@@ -25,7 +27,7 @@
   "devDependencies": {
     "prettier": "3.4.2"
   },
-  "description": "Moonfall 双人月球车竞速：三段实体赛道联调沙盒与独立 3D 视觉原型",
+  "description": "Moonfall 双人月球车竞速：Blender 废墟基地 3D 游戏与三段实体赛道联调沙盒",
   "engines": {
     "node": ">=20"
   }

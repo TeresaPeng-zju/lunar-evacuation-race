@@ -167,7 +167,10 @@ sockets.on('connection', (ws, req) => {
     return;
   }
   ws.isUI = true;
-  ws.isController = url.searchParams.get('role') !== 'floor' && !controller;
+  // Only an explicit control (or the legacy unqualified /ui) may claim authority.
+  // Display/floor viewers must remain read-only even if they connect first.
+  const role = url.searchParams.get('role') || 'control';
+  ws.isController = role === 'control' && !controller;
   if (ws.isController) controller = ws;
   const send = (value) => {
     if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(value));
@@ -309,8 +312,8 @@ server.on('error', (error) => {
 server.listen(port, host, () =>
   console.log(`
 Moonfall · ${mode === 'hardware' ? '外部硬件模式（等待适配器连接）' : '内置无电机模拟器'}
-控制屏   http://${host}:${port}/
-行驶屏   http://${host}:${port}/sandbox.html?floor=1
+电脑控制台 http://${host}:${port}/
+月面主赛区 http://${host}:${port}/floor.html
 硬件接口 ws://${host}:${port}/hardware${mode === 'hardware' ? '' : '（仅外部模式接收连接）'}
 3D 游戏  http://${host}:${port}/index.html
 模型库   http://${host}:${port}/library.html

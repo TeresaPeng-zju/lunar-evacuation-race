@@ -657,3 +657,202 @@ body.floor {
     display: none;
   }
 }
+/* Computer screen: full scene and controls share one authoritative connection. */
+.panorama-panel {
+  margin-bottom: 14px;
+}
+.panorama-panel .panel-head {
+  padding: 12px 16px;
+}
+#control-arena {
+  position: relative;
+  height: 570px;
+  overflow: hidden;
+  background: #10151a;
+}
+#control-map {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.camera-tools {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  display: flex;
+  gap: 5px;
+  z-index: 4;
+}
+.camera-tools button {
+  background: #15212cdd;
+  font-size: 11px;
+  padding: 7px 12px;
+}
+.camera-tools button.active {
+  border-color: #82b9cc;
+  color: #c9eef8;
+}
+.world-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: 10px;
+  padding: 3px 7px;
+  background: #101923c9;
+  color: #b8c6ce;
+}
+.world-label[hidden] {
+  display: none;
+}
+.rover-tag {
+  border: 1px solid #77bbf5;
+  color: #bbdfff;
+}
+.rover-tag.gold {
+  border-color: #dfb66b;
+  color: #ffe4b5;
+}
+.route-tag {
+  font-size: 9px;
+}
+.world-status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #111b24ed;
+  z-index: 8;
+  color: #bed3e0;
+}
+.world-status.error {
+  color: #f2b392;
+}
+#world-notice {
+  position: absolute;
+  left: 50%;
+  top: 20px;
+  transform: translateX(-50%);
+  background: #2d211be8;
+  color: #efc3a5;
+  padding: 10px 18px;
+  border-radius: 5px;
+  z-index: 7;
+  max-width: 65%;
+  font-size: 12px;
+}
+#world-notice:empty {
+  display: none;
+}
+.physical-inspector {
+  margin: 0 0 14px;
+  padding: 12px;
+  background: #111a22;
+  border: 1px solid #25313c;
+  border-radius: 6px;
+}
+.physical-inspector .map-panel {
+  margin-top: 10px;
+}
+.heading {
+  margin-bottom: 12px;
+}
+.heading h1 {
+  font-size: 25px;
+}
+main {
+  max-width: 2100px;
+  padding: 20px 28px;
+}
+.notice {
+  margin-bottom: 14px;
+}
+.top {
+  height: 60px;
+}
+.workspace {
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 18px;
+}
+.rosters {
+  gap: 10px;
+}
+.roster {
+  padding: 10px 13px;
+}
+.roster header {
+  margin-bottom: 7px;
+}
+@media (min-width: 1800px) {
+  #control-arena {
+    height: calc(100vh - 320px);
+    min-height: 640px;
+  }
+}
+@media (max-width: 1100px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+  aside {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  #control-arena {
+    height: 540px;
+  }
+}
+@media (max-width: 700px) {
+  aside {
+    display: block;
+  }
+  #control-arena {
+    height: 450px;
+  }
+  .top {
+    gap: 10px;
+    padding: 0 12px;
+  }
+  .brand small,
+  .connection {
+    display: none;
+  }
+  main {
+    padding: 12px;
+  }
+}
+.console .steps {
+  display: none;
+}
+.console .button-pair {
+  margin: 6px 12px;
+}
+.console .button-pair button {
+  padding: 8px;
+}
+.console .wide {
+  margin-bottom: 12px;
+}
+.choices .player {
+  padding: 10px 12px;
+}
+.choices .player h3 {
+  margin-bottom: 7px;
+}
+.choices .route-choice {
+  margin-bottom: 5px;
+}
+.choices .route-choice button {
+  padding: 7px 2px;
+}
+.choices .rock-btn {
+  padding: 8px;
+}
+.choices .rock-note {
+  margin: 5px 0 0;
+  min-height: 13px;
+}
+.choices .panel-head,
+.console .panel-head {
+  padding: 12px 16px;
+}

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Moonfall · 27 寸月面主赛区</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="floor/style.css" />
+  </head>
+  <body>
+    <main id="arena">
+      <canvas
+        id="floor-map"
+        aria-label="完整月球废墟主赛区，严格对应 59.8×33.6 厘米机器人行驶区域"
+      ></canvas>
+      <div id="load-status">正在装载月面赛区…</div>
+    </main>
+    <div id="floor-tools">
+      <button id="fullscreen">全屏赛区</button><button id="debug">坐标检查</button
+      ><span id="floor-status">等待比赛连接</span>
+    </div>
+    <script type="module" src="floor/app.js"></script>
+  </body>
+</html>

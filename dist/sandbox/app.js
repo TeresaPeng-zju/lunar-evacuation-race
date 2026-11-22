@@ -1,7 +1,38 @@
 import { ROBOTS, CY, ENVELOPE, routeFor, rockSite } from './geometry.js';
+import { LunarWorld } from '../ruins-world.js';
+import { toView } from '../display/map.js';
 const $ = (id) => document.getElementById(id),
   floor = new URLSearchParams(location.search).has('floor');
 document.body.classList.toggle('floor', floor);
+let world = null,
+  view = null,
+  worldError = null;
+try {
+  if (!floor) world = new LunarWorld($('control-map'), { physical: true });
+} catch (e) {
+  worldError = '3D 地图不可用：' + e.message;
+}
+world?.ready.catch((e) => {
+  worldError = e.message;
+});
+for (const b of document.querySelectorAll('[data-view]'))
+  b.onclick = () => world?.setView(b.dataset.view);
+function frame() {
+  if (world && view && !worldError) {
+    try {
+      world.update(view);
+    } catch (e) {
+      worldError = '3D 地图不可用：' + e.message;
+    }
+  }
+  if (!floor) {
+    const stale = lastReceived && performance.now() - lastReceived > 1000;
+    $('world-notice').textContent =
+      worldError || (stale ? '连接中断 · 保留最后位置' : state?.fault || '');
+  }
+  requestAnimationFrame(frame);
+}
+
 const names = { 'rover-blue': '蓝方', 'rover-gold': '黄方' },
   colors = { 'rover-blue': '#77bbf5', 'rover-gold': '#dfb66b' };
 const labels = {
@@ -66,7 +97,13 @@ function connect() {
       controller = m.controller;
       $('authority').textContent = controller ? '主控' : '只读窗口';
     } else if (m.type === 'state') {
+      if (world && state?.match_id !== m.match_id) world.resetEffects();
       state = m;
+      try {
+        view = toView(m);
+      } catch (e) {
+        worldError = e.message;
+      }
       render();
     } else if (m.type === 'action.result' && !m.ok) notify(m.error);
   };
@@ -206,7 +243,7 @@ function draw() {
     `<path d="M0 16.8H59.8" stroke="#5d6a73" stroke-width=".07" stroke-dasharray=".4 .4"/><rect x=".04" y=".04" width="59.72" height="33.52" fill="none" stroke="#627583" stroke-width=".08"/>`;
 }
 function render() {
-  draw();
+  if (document.querySelector('.physical-inspector')?.open) draw();
   const s = state;
   $('time').textContent = time(s.elapsed_ms);
   $('status').textContent = labels[s.status] || s.status;
@@ -327,3 +364,13 @@ setInterval(() => {
   }
 }, 500);
 connect();
+
+// Read-only diagnostics for two-screen acceptance checks.
+window.moonfallSandbox = {
+  snapshot: () => state && structuredClone(state),
+  controller: () => controller,
+  world: () => world?.diagnostics(),
+};
+
+if (!floor) frame();
+document.querySelector('.physical-inspector').addEventListener('toggle', () => state && draw());

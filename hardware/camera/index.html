@@ -1,0 +1,189 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MoonFall · 相机测试</title><style>
+*{box-sizing:border-box}body{margin:0;background:#101519;color:#eef3f4;font:15px system-ui,sans-serif}main{max-width:1320px;margin:auto;padding:26px}header,.tools,footer{display:flex;align-items:center;gap:14px;flex-wrap:wrap}header{border-bottom:1px solid #354047;padding-bottom:18px}h1{font-size:22px;margin:0}header small{color:#9eaeb7;letter-spacing:.1em}.tools{margin:18px 0}label{display:flex;align-items:center;gap:8px}select,button{font:inherit;background:#202a31;color:inherit;border:1px solid #45545e;border-radius:6px;padding:8px;max-width:100%}button{cursor:pointer}button:disabled{opacity:.45;cursor:default}#start{background:#a4ddd4;color:#132728;border-color:#a4ddd4}#stage{position:relative;width:100%;aspect-ratio:16/9;background:#080b0e;border:1px solid #354047;overflow:hidden;border-radius:8px}video,svg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}svg{pointer-events:none}#empty{position:absolute;inset:0;display:grid;place-items:center;color:#93a2ad}#empty[hidden]{display:none}footer{justify-content:space-between;padding:12px 0;color:#c4d1d7}#count{color:#9cdbcc}#details{overflow-wrap:anywhere}svg text{font-family:system-ui;paint-order:stroke;stroke:#151a1e;stroke-width:5;stroke-linejoin:round}
+input[type=number]{width:5em;background:#202a31;color:white;border:1px solid #45545e;border-radius:5px;padding:7px}fieldset{border:1px solid #45545e;border-radius:8px;margin:14px 0}#haltNav{color:#ffb4a6}.readout{background:#17232b;padding:12px 16px;margin:0 0 10px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.readout small{color:#b8c7ce}.readout span{color:#a4ddd4;font-variant-numeric:tabular-nums}#pose{margin-left:8px;font-weight:650}</style><main><header><small>MOONFALL</small><h1>相机测试</h1></header><fieldset><legend>单车直线到点 · mm</legend>
+<div class="tools"><label>中心距 X <input type="number" id="fieldX" value="747"></label><label>Y <input type="number" id="fieldY" value="337"></label>
+<button id="cal">标定场地</button><button id="zeroHeading">车头朝右，校准方向</button></div>
+<div class="tools"><label>起点 X <input type="number" id="ax"></label><label>Y <input type="number" id="ay"></label><button id="here">取当前起点</button>
+<label>终点 X <input type="number" id="bx"></label><label>Y <input type="number" id="by"></label></div>
+<div class="tools"><select id="rover" aria-label="画面中唯一的 ID 0 所在车辆"><option value="">选择现场唯一的 ID 0 小车</option><option value="192.168.31.127">第一台 · .127</option><option value="192.168.31.157">第二台 · .157</option></select>
+<button id="goNav">开始直线行驶</button><button id="haltNav">停车</button><span id="navNote" role="status">等待标定</span></div></fieldset><div class="tools">
+<label>摄像头 <select id="devices"><option value="">系统默认摄像头</option></select></label><button id="start">打开相机</button>
+<button id="choose">打开视频文件</button><input hidden id="file" type="file" accept="video/*">
+<label>识别类型 <select id="mode"><option value="tag">AprilTag</option><option value="qr">二维码</option><option value="both">两种都识别</option></select></label><button id="stop" disabled>停止</button></div>
+<fieldset><legend>蓝车 · 游戏棋盘坐标（cm）</legend>
+<div class="tools"><button id="boardFromTags">按四个场地码推算棋盘</button><button id="boardCal">点选四个棋盘角</button><button id="boardUndo" disabled>撤回上一点</button><span id="boardGuide">按有效赛区左上、右上、右下、左下的顺序标定</span></div>
+<div class="tools"><span>从车顶码中心量到车体中心</span><label>向前（mm）<input id="offsetF" type="number" step="any" placeholder="实测"></label><label>向右（mm）<input id="offsetR" type="number" step="any" placeholder="实测"></label></div>
+<strong id="boardPose">等待棋盘标定</strong></fieldset>
+<fieldset><legend>蓝车轨迹跟踪 · 信标回廊第一弯</legend>
+<p>起点 (6.0, 8.4) cm，车头朝右。黄线为目标，青线为实测轨迹。</p>
+<div class="tools"><button id="curveStart">从游戏起点测试</button><button id="curveHere">从当前位置测试（标签中心）</button><span id="curveCoords"></span><button id="arcHere">从当前位置走圆弧（右转 60°）</button><label>终点 X（cm）<input id="goalX" type="number" step="0.1"></label><label>Y（cm）<input id="goalY" type="number" step="0.1"></label><button id="goalArc">从此处沿弧到终点</button><button id="curveStop">停止测试</button><span id="curveStatus" role="status">等待启动</span></div><output id="curveStats"></output></fieldset><section class="readout" aria-label="实时场地坐标"><div><strong>车顶 ID 0 中心</strong> <span id="pose">等待场地标定</span></div><small>原点在左上角 ID 4 中心，X 向右，Y 向下</small><div><button id="measure" disabled>设为测距起点</button> <span id="displacement"></span></div></section><div id="stage"><video muted autoplay playsinline></video><canvas id="nativeView" hidden style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain"></canvas><svg viewBox="0 0 1280 720"></svg><div id="empty">选择摄像头或视频文件开始预览</div></div>
+<footer><span id="status" role="status">等待视频源</span><span style="color:#68ff99">实线 · AprilTag 实测</span><span style="color:#ff90e8">虚线 · 卡尔曼预测</span><span id="metrics"></span><span id="count"></span></footer><div id="details"></div></main>
+<script type="module">
+import {pilot} from '/pilot.mjs';
+const $=id=>document.getElementById(id), video=document.querySelector('video'), overlay=document.querySelector('svg');
+const capture=document.createElement('canvas'), ctx=capture.getContext('2d');
+let stream=null,url=null,version=0,kind='',title='';
+const tracks=new Map();
+const predictionLayer=svgNode('g',{'data-layer':'predictions'});
+function clearMarks(){tracks.clear();predictionLayer.replaceChildren();overlay.replaceChildren();$('count').textContent='';$('details').textContent=''}
+function stop(){$('nativeView').hidden=true;pilot.reset();$('metrics').textContent='';version++;kind='';stream?.getTracks().forEach(t=>t.stop());stream=null;video.pause();video.srcObject=null;video.removeAttribute('src');video.load();if(url)URL.revokeObjectURL(url);url=null;clearMarks();$('stop').disabled=true;$('empty').hidden=false;$('status').textContent='等待视频源'}
+async function devices(){
+ const selected=stream?.getVideoTracks()[0]?.getSettings().deviceId||$('devices').value;
+ const inputs=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput'&&d.deviceId);
+ $('devices').replaceChildren(new Option('系统默认摄像头',''),...inputs.map((d,i)=>new Option(d.label||('摄像头 '+(i+1)),d.deviceId)));
+ if(inputs.some(d=>d.deviceId===selected))$('devices').value=selected;
+}
+function svgNode(name,attrs){const el=document.createElementNS('http://www.w3.org/2000/svg',name);for(const [k,v] of Object.entries(attrs))el.setAttribute(k,v);return el}
+// Independent constant-velocity Kalman filters for each corner coordinate.
+class MotionAxis {
+ constructor(position){this.x=position;this.speed=0;this.a=4;this.b=0;this.c=40000}
+ update(measurement,dt){
+  const accelVariance=1600000, dt2=dt*dt;
+  const a=this.a+2*dt*this.b+dt2*this.c+accelVariance*dt2*dt2/4;
+  const b=this.b+dt*this.c+accelVariance*dt2*dt/2;
+  const c=this.c+accelVariance*dt2;
+  const variance=4, innovation=measurement-(this.x+this.speed*dt);
+  this.x+=this.speed*dt+a/(a+variance)*innovation;
+  this.speed+=b/(a+variance)*innovation;
+  this.a=a*variance/(a+variance); this.b=b*variance/(a+variance); this.c=c-b*b/(a+variance);
+ }
+ ahead(dt){return this.x+this.speed*dt}
+}
+function updateTrack(marker,stamp){
+ let track=tracks.get(marker.label);
+ if(!track || stamp-track.stamp>240){
+  track={axes:marker.points.map(point=>point.map(n=>new MotionAxis(n))),stamp};
+  tracks.set(marker.label,track);
+ }else{
+  const dt=Math.max(.001,(stamp-track.stamp)/1000);
+  track.axes.forEach((point,i)=>point.forEach((axis,j)=>axis.update(marker.points[i][j],dt)));
+  track.stamp=stamp;
+ }
+}
+function predicted(track,now){
+ const dt=Math.max(0, Math.min(.22,(now-track.stamp)/1000));
+ return track.axes.map(point=>point.map(axis=>axis.ahead(dt)));
+}
+function drawPredictions(now){
+ const nodes=[];
+ for(const [id,track] of tracks){
+  if(now-track.stamp>240){tracks.delete(id);continue}
+  nodes.push(svgNode('polygon',{points:predicted(track,now).map(p=>p.join(',')).join(' '),fill:'none',stroke:'#ff90e8','stroke-width':3,'stroke-dasharray':'8 6','data-tag':id}));
+ }
+ predictionLayer.replaceChildren(...nodes);
+}
+function marks(items,w,h,stamp){
+ overlay.setAttribute('viewBox','0 0 '+w+' '+h);overlay.replaceChildren();
+ for(const m of items){const color=m.kind==='tag'?'#68ff99':'#ffd77d',p=m.points;
+ overlay.append(svgNode('polygon',{points:p.map(pt=>pt.join(',')).join(' '),fill:'none',stroke:color,'stroke-width':4}));
+ const text=svgNode('text',{x:Math.max(3,Math.min(...p.map(v=>v[0]))),y:Math.max(26,Math.min(...p.map(v=>v[1]))-7),fill:color,'font-size':25});text.textContent=m.label;overlay.append(text)}
+ for(const item of items)if(item.kind==='tag')updateTrack(item,stamp);
+ overlay.append(predictionLayer);
+ $('count').textContent='识别到 '+items.length+' 个';$('details').textContent=items.map(m=>m.label).join('　·　')
+}
+function trackFrames(v) {
+ let busy=false, first=performance.now(), shown=0, processed=0, lastCost=0;
+ let lastOverlay=0, retryAfter=0, lastFullScan=-Infinity;
+ async function recognize(mode, started) {
+  const width=video.videoWidth,height=video.videoHeight;
+  const fullScan=pilot.calibrated()||mode!=='tag'||!tracks.size||started-lastFullScan>=650;
+  let x=0,y=0,right=width,bottom=height;
+  if(fullScan){lastFullScan=started}else{
+   const points=[...tracks.values()].flatMap(track=>predicted(track,started));
+   const pad=Math.ceil(width*.065);
+   x=Math.max(0,Math.min(width-1,Math.floor(Math.min(...points.map(p=>p[0])))-pad));
+   y=Math.max(0,Math.min(height-1,Math.floor(Math.min(...points.map(p=>p[1])))-pad));
+   right=Math.min(width,Math.max(x+1,Math.ceil(Math.max(...points.map(p=>p[0])))+pad));
+   bottom=Math.min(height,Math.max(y+1,Math.ceil(Math.max(...points.map(p=>p[1])))+pad));
+  }
+  const w=right-x,h=bottom-y;
+  if(capture.width!==w||capture.height!==h){capture.width=w;capture.height=h}
+  ctx.drawImage(video,x,y,w,h,0,0,w,h);
+  const blob=await new Promise(resolve=>capture.toBlob(resolve,'image/jpeg',.88));
+  if(v!==version)return;
+  const searchMode=!fullScan && [...tracks.keys()].every(id=>id.endsWith('36h11'))?'tag36':mode;
+  const response=await fetch('/detect/'+searchMode,{method:'POST',body:blob,signal:AbortSignal.timeout(2500)});
+  if(response.status===429)return;
+  if(!response.ok)throw Error();
+  const items=await response.json();
+  if(v!==version || mode!==$('mode').value)return;
+  lastCost=Math.round(performance.now()-started);
+  processed++;
+  if(lastCost<=250){
+   for(const item of items)item.points=item.points.map(([px,py])=>[px+x,py+y]);
+   marks(items,width,height,started);
+   if(kind==='camera')pilot.update(items,started,overlay);
+   lastOverlay=started;
+  }
+ }
+ function onFrame(now,metadata) {
+  if(v!==version)return;
+  video.requestVideoFrameCallback(onFrame);
+  shown++;
+  drawPredictions(now);
+  if(lastOverlay && now-lastOverlay>250){clearMarks();lastOverlay=0}
+  if(now-first>=1000){
+   const seconds=(now-first)/1000;
+   $('metrics').textContent='预览 '+Math.round(shown/seconds)+' fps · 识别 '+Math.round(processed/seconds)+' fps · 处理 '+lastCost+' ms';
+   first=now;shown=0;processed=0;
+  }
+  if(busy || now<retryAfter || document.hidden)return;
+  busy=true;
+  recognize($('mode').value,metadata.captureTime ?? metadata.presentationTime ?? now).catch(()=>{
+   if(v===version){clearMarks();retryAfter=performance.now()+350;$('status').textContent='识别服务正在重连…'}
+  }).finally(()=>{busy=false});
+  if(now>=retryAfter)$('status').textContent=title+' · '+video.videoWidth+' × '+video.videoHeight;
+ }
+ video.requestVideoFrameCallback(onFrame)
+}
+async function openNative(){
+ stop();const v=version;kind='native';$('stop').disabled=false;
+ const canvas=$('nativeView'),ctx=canvas.getContext('2d');canvas.hidden=false;
+ let previous=0;
+ while(v===version){
+  try{
+   if(document.hidden){await new Promise(r=>setTimeout(r,250));continue}
+   const sent=performance.now();
+   const data=await (await fetch('/live-frame',{cache:'no-store',signal:AbortSignal.timeout(2500)})).json();
+   const received=performance.now();
+   if(v!==version)break;
+   if(data.error)throw Error(data.error);
+   if(data.stamp!==previous){
+    const im=new Image();im.src='data:image/jpeg;base64,'+data.image;await im.decode();
+    if(v!==version)break;
+    if(canvas.width!==im.width || canvas.height!==im.height){canvas.width=im.width;canvas.height=im.height}
+    ctx.drawImage(im,0,0);
+    // Upper bound using only local elapsed times; the two monotonic clocks have different origins.
+    const stamp=sent-data.age;
+    const age=performance.now()-stamp;
+    marks(data.items,im.width,im.height,stamp);drawPredictions(performance.now());
+    pilot.update(data.items,stamp,overlay);
+    $('empty').hidden=true;$('status').textContent='icspring USB · '+im.width+' × '+im.height;
+    $('metrics').textContent='本机帧龄 '+Math.round(age)+' ms';
+    previous=data.stamp;
+   }
+  }catch(e){if(v===version){clearMarks();$('status').textContent=e.message}}
+  await new Promise(r=>setTimeout(r,20));
+ }
+}
+async function openSource(source,file){
+ const id=$('devices').value;stop();const v=version;$('stop').disabled=false;$('status').textContent='正在打开…';
+ try{if(source==='camera'){if(new URLSearchParams(location.search).get('control')==='1' && $('mode').value==='tag' && (!id || /icspring/i.test($('devices').selectedOptions[0]?.text))){openNative();return}const s=await navigator.mediaDevices.getUserMedia({audio:false,video:{...(id?{deviceId:{exact:id}}:{}),width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}}});
+ if(v!==version){s.getTracks().forEach(t=>t.stop());return}stream=s;video.srcObject=s;title=s.getVideoTracks()[0].label||'摄像头';
+ s.getVideoTracks()[0].onended=()=>{if(v===version){stop();$('status').textContent='摄像头已断开'}};await devices();
+ }else{url=URL.createObjectURL(file);video.src=url;title=file.name}
+ if(v!==version)return;video.loop=source==='file';await video.play();if(v!==version)return;
+ kind=source;$('empty').hidden=true;trackFrames(v)
+ }catch(e){if(v!==version)return;stop();$('status').textContent=e.name==='NotAllowedError'?'请允许浏览器访问摄像头，再点打开相机。':'视频源打开失败：'+e.message}
+}
+$('start').onclick=()=>openSource('camera');$('devices').onchange=()=>{if(kind==='camera')openSource('camera')};$('stop').onclick=stop;
+$('choose').onclick=()=>$('file').click();$('file').onchange=e=>{const f=e.target.files[0];if(f)openSource('file',f);e.target.value=''};
+$('mode').onchange=()=>{clearMarks();pilot.reset();if(kind==='native')openSource('camera')};navigator.mediaDevices?.addEventListener('devicechange',()=>devices().catch(()=>{}));devices().then(()=>{
+ if(new URLSearchParams(location.search).get('control')==='1'){openNative();return}
+ if(new URLSearchParams(location.search).get('camera')==='icspring'){
+  const option=[...$('devices').options].find(item=>/icspring/i.test(item.text));
+  if(option){$('devices').value=option.value;openSource('camera')}
+ }
+}).catch(()=>{});
+</script></html>

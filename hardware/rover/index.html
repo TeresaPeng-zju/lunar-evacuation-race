@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MoonFall · 小车测试</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eaf0ee;color:#18352c;font:16px Inter,-apple-system,BlinkMacSystemFont,sans-serif;min-height:100vh;display:grid;place-items:center;padding:20px}
+main{background:#fff;width:min(100%,438px);padding:30px;border:1px solid #cbd7cf;border-radius:22px;box-shadow:0 14px 50px #19362b12}
+h1{margin:0;font-size:28px}header,.power,footer{display:flex;align-items:baseline;justify-content:space-between;gap:10px}small,#connection{color:#50645b}#connection{font-size:14px;margin:10px 0 30px}.power{font-weight:650}output{font:600 26px ui-monospace,monospace}
+input{width:100%;accent-color:#176246;margin:12px 0 24px}.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+button{background:#eff5f1;border:1px solid #d1ddd5;color:inherit;font:600 16px inherit;font-family:inherit;font-size:16px;font-weight:600;border-radius:12px;height:60px;touch-action:none;user-select:none;cursor:pointer}
+button.on{background:#18593f;color:white}button:disabled{opacity:.45}button[data-d=forward],button[data-d=back]{grid-column:2}button[data-d=left]{grid-column:1}#stop{background:#fbe7df;color:#8c3425}p{font-size:14px;color:#50645b;line-height:1.6}footer{border-top:1px solid #dde6df;padding-top:15px;font-size:14px}
+form{margin-top:20px}form label{font-size:14px;font-weight:600}.target{display:flex;gap:8px;margin-top:5px}.target input,.target select,.target button{height:38px;margin:0;border-radius:8px}.target select,.target input{flex:1;min-width:0;border:1px solid #b2c2b9;padding:0 10px;font:inherit}.target button{min-width:64px}
+</style>
+<main><header><h1>小车遥控</h1><small id="link">连接遥控中</small></header>
+<form id="choose"><label for="rovers">小车 IP</label><div class="target"><select id="rovers"></select><input id="ip" aria-label="新小车 IP" placeholder="输入 IP 地址" hidden autocomplete="off"><button>切换</button></div></form>
+<div id="connection">正在读取小车状态…</div>
+<label class="power" for="power">电机功率 <output id="value">25%</output></label>
+<input type="range" id="power" min="1" max="100" value="25">
+<div class="pad"><button data-d="forward">↑ 前进</button><button data-d="left">← 左转</button><button id="stop">停止</button><button data-d="right">右转 →</button><button data-d="back">↓ 后退</button></div>
+<p>按住按钮或键盘方向键移动，松开停车。空格键也可停车。</p>
+<footer><span id="activity" role="status">待操作</span><small id="wheels"></small></footer></main>
+<script>
+const el=id=>document.getElementById(id);
+const known=['192.168.31.157','192.168.116.122'];
+const valid=ip=>/^(?:0|[1-9]\d{0,2})(?:\.(?:0|[1-9]\d{0,2})){3}$/.test(ip) &&
+  ip.split('.').every(n=>Number(n)<256) && !/\.(0|255)$/.test(ip) &&
+  /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(ip);
+const saved=JSON.parse(localStorage.getItem('roverIPs')||'[]');
+const requested=new URLSearchParams(location.search).get('ip') || localStorage.getItem('lastRover');
+const ip=valid(requested)?requested:known[0];
+const query='?ip='+encodeURIComponent(ip);
+el('ip').value=ip;
+for(const addr of new Set([...known,...saved,ip].filter(valid))){
+  el('rovers').appendChild(new Option(addr==='192.168.31.157'?'第二台 · '+addr:addr,addr));
+}
+el('rovers').appendChild(new Option('其他 IP…',''));
+el('rovers').value=ip;
+el('rovers').onchange=()=>{
+  const custom=!el('rovers').value;
+  el('ip').hidden=!custom;
+  if(custom){el('ip').value='';el('ip').focus()}
+};
+el('ip').oninput=()=>el('ip').setCustomValidity('');
+el('choose').onsubmit=e=>{
+  e.preventDefault();
+  const next=el('rovers').value || el('ip').value.trim();
+  if(!valid(next)){el('ip').setCustomValidity('请输入有效的局域网 IPv4 地址');el('ip').reportValidity();return}
+  if(next===ip)return;
+  halt(true);
+  localStorage.setItem('lastRover',next);
+  localStorage.setItem('roverIPs',JSON.stringify([...new Set([...saved,ip,next])]));
+  location.replace('/?ip='+encodeURIComponent(next));
+};
+const buttons=[...document.querySelectorAll('[data-d]')];
+const keys={ArrowUp:'forward',ArrowDown:'back',ArrowLeft:'left',ArrowRight:'right'};
+let ws,current=null,source=null,timer;
+function send(direction){
+  if(ws?.readyState===1) ws.send(JSON.stringify({direction,power:Number(el('power').value),time:Date.now()}));
+}
+function halt(force=false){
+  if(current || force) send('stop');
+  clearInterval(timer);current=null;source=null;
+  buttons.forEach(b=>b.classList.remove('on'));
+  el('activity').textContent='待操作';
+}
+function start(b,id){
+  if(current || !b || ws?.readyState!==1) return;
+  current=b.dataset.d;source=id;b.classList.add('on');
+  el('activity').textContent='发送中 · '+b.textContent;
+  send(current);timer=setInterval(()=>send(current),90);
+}
+function connect(){
+  ws=new WebSocket('ws://'+location.host+'/control'+query);
+  buttons.forEach(b=>b.disabled=true);
+  ws.onopen=()=>{el('link').textContent='遥控已连接';buttons.forEach(b=>b.disabled=false)};
+  ws.onclose=()=>{el('link').textContent='遥控已断开';halt();buttons.forEach(b=>b.disabled=true);el('activity').textContent='控制服务断开';setTimeout(connect,1200)};
+}
+buttons.forEach(b=>{
+  b.onpointerdown=e=>{if(e.button!==0)return;e.preventDefault();b.setPointerCapture(e.pointerId);start(b,e.pointerId)};
+  b.onlostpointercapture=b.onpointercancel=b.onpointerup=e=>{if(source===e.pointerId)halt()};
+});
+el('stop').onclick=()=>halt(true);
+window.onkeydown=e=>{
+  if(e.target===el('ip') || e.target===el('rovers'))return;
+  if(e.code==='Space'){e.preventDefault();halt(true);return}
+  if(!keys[e.key] || e.target===el('power'))return;
+  e.preventDefault();if(!e.repeat)start(buttons.find(b=>b.dataset.d===keys[e.key]),e.key);
+};
+window.onkeyup=e=>{if(source===e.key)halt()};
+window.onblur=()=>halt();document.onvisibilitychange=()=>{if(document.hidden)halt()};
+el('power').oninput=e=>el('value').textContent=e.target.value+'%';
+async function status(){
+  try{
+    const {ip,state,lastSeen}=await (await fetch('/status'+query)).json();
+    const age=lastSeen?Math.round((Date.now()-lastSeen)/1000):null;
+    const feedback=age===null?'等待小车回包':('上次回包 '+age+' 秒前');
+    el('connection').textContent=ip+' · '+(state?'小车在线':feedback);
+    el('wheels').textContent=state?'PWM　左 '+state.L+'　右 '+state.R:'';
+  }catch{el('connection').textContent='本地服务未连接';el('wheels').textContent=''}
+  setTimeout(status,1800);
+}
+connect();status();
+</script></html>

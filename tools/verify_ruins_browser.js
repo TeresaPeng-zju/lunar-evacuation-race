@@ -1,0 +1,41 @@
+// Run with Playwright CLI after starting the local server; see docs/gameplay-3d.md.
+async page => {
+ const base=new URL(page.url()).origin;
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const checks=[],snap=()=>page.evaluate(()=>({r:window.lunar.snapshot(),w:window.lunar.world()}));
+ const step=async t=>{await page.evaluate(t=>window.lunarTest.advance(t),t);return snap();};
+ const ok=(condition,name,data)=>{checks.push({name,passed:!!condition,data});if(!condition)throw Error(name+' '+JSON.stringify(data));};
+ const shot=async name=>page.screenshot({path:'work/browser-proof/'+name+'.png'});
+ const choose=async(i,r)=>page.locator(`[data-player="${i}"][data-route="${r}"]`).click();
+ const load=async result=>{await page.goto(base+'/index.html?qa=1&outcome='+result);await page.waitForFunction(()=>window.lunar?.world().ready,null,{timeout:60000});};
+ const until=async fn=>{for(let i=0;i<900;i++){const s=await snap();if(fn(s))return s;await step(.2);}throw Error('Condition timeout');};
+ await load('stable');
+ await choose(0,'beacon');await choose(1,'outer');await page.locator('#startBtn').click();
+ await step(9);let s=await snap();ok(s.r.players[0].beacon&&s.w.doors[0]>2,'beacon opens personal gate at actual position',s.r.players[0].position);
+ await page.locator('[data-attack="1"]').click();
+ s=await step(1);ok(s.w.rocks[0].warning&&!s.w.rocks[0].visible&&!s.r.players[0].rock.active,'one second: warning and card, no landed obstacle');await shot('01-card-warning');
+ s=await step(.9);ok(s.w.rocks[0].warning&&s.w.rocks[0].visible&&!s.r.players[0].rock.active,'1.9 seconds: falling rock, warning still active');
+ s=await step(.11);ok(!s.w.rocks[0].warning&&s.w.rocks[0].visible&&s.r.players[0].rock.active,'two seconds: landed obstacle');
+ s=await until(s=>s.r.players[0].edge?.id==='beaconRock');ok(s.r.players[0].edge.points.length===4,'blue takes genuine four-point beacon bypass');
+ await step(3);await shot('02-rock-detour');
+ s=await until(s=>s.r.quake!==null);ok(s.w.faultVisible>0,'first arrival at quake zone activates fissure');
+ await choose(0,'risk');s=await snap();ok(!s.r.locked&&s.r.players[0].final===null,'first secret submission stays unpublished');
+ await choose(1,'safe');s=await snap();ok(s.r.locked&&s.r.players[0].final==='risk'&&s.r.players[1].final==='safe','both final choices publish together');
+ await page.locator('[data-attack="0"]').click();await step(2.1);await shot('03-quake-routes');
+ s=await until(s=>s.r.aftershock!==null);ok(s.r.aftershock==='stable','source triggers shared stable aftershock');
+ s=await until(s=>s.r.status==='finished');ok(s.r.players.some(p=>p.arrived!==null&&p.position.x===1490&&p.position.y===0),'winner physically reaches dock waypoint');
+ ok(s.r.players[0].detours.includes('beaconRock')&&s.r.players[1].detours.includes('safeRock'),'opening and final falling rocks both take legal bypasses',s.r.players.map(p=>p.detours));
+ await shot('04-stable-finish');const stable=s.r;
+ await page.locator('[data-reset]').click();s=await snap();ok(s.r.status==='ready'&&s.r.time===0&&s.w.faultVisible===0&&s.w.doors.every(n=>n===0),'restart clears state, faults, gates');
+ await load('collapse');await choose(0,'outer');await choose(1,'beacon');await page.locator('#startBtn').click();
+ await page.locator('[data-attack="1"]').click();s=await until(s=>s.r.players[0].edge?.id==='outerRock');ok(s.r.players[0].edge.points.length===4,'outer route rock uses its own bypass');
+ s=await until(s=>s.r.quake!==null);await choose(0,'risk');await choose(1,'risk');await page.locator('[data-attack="0"]').click();
+ s=await until(s=>s.r.aftershock!==null);ok(s.r.aftershock==='collapse','first source triggers shared collapse');
+ s=await until(s=>s.r.players.some(p=>p.edge?.id==='collapse'&&p.d>45));await shot('05-collapse-detour');
+ const trace=await page.evaluate(async()=>{const {mapPoint}=await import('./ruins-map.js');let worst=0,frames=0;for(let i=0;i<160;i++){window.lunarTest.advance(.1);const r=window.lunar.snapshot(),w=window.lunar.world();r.players.forEach((p,id)=>{const q=mapPoint([p.position.x,p.position.y],id),v=w.roverPositions[id];worst=Math.max(worst,Math.hypot(q.x-v[0],q.y-v[1],q.z-v[2]));});frames++;if(r.status==='finished')break;}return{worst,frames};});ok(trace.worst<1e-6,'3D trajectory matches source path through collapse',trace);
+ s=await until(s=>s.r.status==='finished');ok(s.r.aftershock==='collapse'&&s.r.players.some(p=>p.history.some(q=>q[1]===-190)),'collapse winner completed actual outside detour');await shot('06-collapse-finish');const collapse=s.r;
+ await page.locator('[data-reset]').click();await choose(0,'beacon');await choose(1,'beacon');await page.locator('#startBtn').click();s=await until(s=>s.r.quake!==null);const initial=s.r.players.map(p=>p.distance);s=await step(7.1);ok(s.r.locked&&s.r.players.every(p=>p.final==='safe'),'seven second timeout defaults to safe');ok(s.r.players.every((p,i)=>p.distance>initial[i]+190),'vehicles continue moving during secret choice window');
+ s=await until(s=>s.r.status==='finished');ok(s.r.winner==='tie','equal routes produce a tie');
+ ok(errors.length===0,'no browser exceptions',errors);
+ return {checks,stable,collapse,errors};
+}

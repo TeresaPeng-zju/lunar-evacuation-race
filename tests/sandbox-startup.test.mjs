@@ -122,6 +122,10 @@ test(
     assert.match(await home.text(), /硬件联调沙盒/);
     for (const path of [
       '/index.html',
+      '/display.html',
+      '/floor.html',
+      '/floor/renderer.js',
+      '/display/map.js',
       '/library.html',
       '/visual-lab.html',
       '/sandbox.html?floor=1',
@@ -135,6 +139,14 @@ test(
     assert.equal(map.routes.length, 22);
     assert.equal((await fetch(service.base + '/physical-track.html')).status, 404);
     assert.equal((await fetch(service.base + '/sandbox.html', { method: 'POST' })).status, 405);
+    const display = await connect(t, service.port, '/ui?role=display');
+    await until(() => display.messages.some((m) => m.type === 'welcome'), 'No display welcome');
+    assert.equal(display.messages.find((m) => m.type === 'welcome').controller, false);
+    display.ws.send(JSON.stringify({ action: 'configure' }));
+    await until(
+      () => display.messages.some((m) => m.type === 'action.result' && !m.ok),
+      'Display accepted control',
+    );
     const control = await connect(t, service.port);
     const floor = await connect(t, service.port, '/ui?role=floor');
     await until(
@@ -152,6 +164,13 @@ test(
     );
     control.ws.send(JSON.stringify({ action: 'configure' }));
     await until(async () => (await service.state()).configured, 'Simulation configure failed');
+    control.ws.send(JSON.stringify({ action: 'start' }));
+    await until(async () => (await service.state()).status === 'running', 'No running race');
+    display.ws.close();
+    await delay(80);
+    assert.equal((await service.state()).status, 'running');
+    control.ws.send(JSON.stringify({ action: 'stop' }));
+    await until(async () => (await service.state()).status === 'stopped', 'No confirmed stop');
     const duplicate = launch(t, serverPath, ['--port', String(service.port)]);
     await until(() => duplicate.child.exitCode !== null, 'Occupied port left a hanging process');
     assert.equal(duplicate.child.exitCode, 1);

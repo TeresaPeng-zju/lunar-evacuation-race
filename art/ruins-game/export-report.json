@@ -1,0 +1,16 @@
+{
+  "source_blend": "/Users/teresapeng/Documents/Codex/2026-11-19/bang/outputs/moonfall-phase01-02/moonfall_blockout.blend",
+  "source_blend_sha256": "4bcdb05c5ee0969f7ae685af561030295cec08b6335b5df036c20584c8117d1d",
+  "restored_material_slots": 198,
+  "existing_asset_instances": 17,
+  "reused_basalt_clusters": 16,
+  "road_edges": 40,
+  "static_materials": 24,
+  "static_triangles": 856172,
+  "exports": {
+    "static-scene.glb": 55660668,
+    "interactive.glb": 16431612
+  },
+  "texture_credit": "Moon 04 / Poly Haven CC0; reused existing downloaded lunar simulant PBR maps",
+  "new_geometry": "gate panels and central fissure segments only; ring bevel modifiers; terrain layout unchanged"
+}

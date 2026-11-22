@@ -37,3 +37,11 @@ Three.js 0.180.0 is vendored under its MIT license at `dist/vendor/three/LICENSE
 生成脚本为 `tools/build_reference_library.py`、`tools/reference_textures.py`、`tools/render_reference_animation.py` 与 `tools/encode_reference_animation.py`。完整工程、重建边界、单位和重新生成方法见 `art/reference-library/README.md`。
 
 V0.4 比赛主画面通过 `dist/world.js` 加载 `moon-map.glb`，使用其中 19 个常驻设施，以及第 20 个陨石撞击模型的动画与路障网格。`race-layout.json` 是避开双车道和绕行线的运行摆放；独立模型库仍保留原 8×5 格位。比赛地面、实体道路和断层继续使用为双车道玩法建模的 `lunar-world.glb`，参考图地形网格仅在模型库展示。
+
+## 可玩废墟场景（2026-11-22）
+
+`art/ruins-game/moonfall-ruins.blend` 由已交付 Phase 02 灰模继续制作，保留地形与道路。恢复既有 GLB 材质与贴图，中央环形遗址增加边缘处理；崖壁占位在原位置复用 `models/meteorite.glb`。`dist/assets/ruins-game/` 是实际游戏加载的静态与交互导出。
+
+月壤 PBR 复用 `art/visual-sample/source-textures/moon_04_*_2k.jpg`：Poly Haven **Moon 04**，Greg Zaal / Jenelle van Heerden / Rico Cilliers，CC0，<https://polyhaven.com/a/moon_04>。这是月壤模拟材料的实拍资源。派生 `lunar-albedo.png` 只做中性灰处理，法线、粗糙度、表面遮蔽仍来自同组资源。设施、车和原卡面来源沿用本文件既有记录。
+
+The physical floor display (`floor.html`) uses three orthographic Blender Cycles plates in `dist/assets/floor-arena/`. The editable source is `art/floor-arena/moonfall-physical-arena.blend`, generated with `tools/render_floor_arena.py`. These reuse the existing reference-model GLBs, regolith detail from `art/reference-library/textures/regolith.jpg`, and the previously attributed Moon04 roughness/normal maps. The image plates contain static facilities only; gate panels, canonical paths, beacon/quake/rock/finish events are drawn at runtime in board centimeters. No new externally sourced artwork is introduced.
