@@ -10,8 +10,10 @@
 | 本地 HTTP、WebSocket、控制窗口权限 | `sandbox/server.mjs` |
 | 启动参数与帮助 | `sandbox/options.mjs` |
 | 无电机参考执行器 | `sandbox/simulator.mjs`，独立运行入口 `sandbox/mock-client.mjs` |
-| 控制屏、只读地面屏 | `dist/sandbox.html`、`dist/sandbox/app.js`、`dist/sandbox/style.css` |
-| 3D 画面 | `dist/world.js`、`dist/visual-lab.js`，不修改硬件坐标 |
+| 电脑控制台 | `dist/sandbox.html`、`dist/sandbox/app.js`、`dist/sandbox/style.css` |
+| 只读月面主赛区 | `dist/floor.html`、`dist/floor/`；背景资源在 `dist/assets/floor-arena/` |
+| 实体路径到 3D 全景的映射 | `dist/display/map.js`，不得改变实体路径 |
+| 当前 3D 画面 | `dist/ruins-world.js`、`dist/ruins-map.js`；`dist/visual-lab.js` 保留美术样板 |
 | 原单张地图 3D 规则演示 | `dist/engine.js`，不驱动实体车辆 |
 
 Node 和浏览器直接导入同一份实体路线几何。`dist/shared/rules.js` 只共享选路时长等基础常量；两套规则演示不会互相推进状态。浏览器页面只展示 Node 快照，不能用渲染帧代替定位真值。具体协议见 [硬件联调说明](hardware-integration.md)。
@@ -36,7 +38,7 @@ npm test
 ## 本次整理
 
 - 默认入口统一到 `npm start`，原 3D 页面由同一个服务提供；删除根目录重复静态服务 `server.mjs`。
-- 删除没有运行引用的 `dist/effects.js`、`dist/trails.js`。当前 3D 效果由 `dist/world.js` 实现。
+- 删除没有运行引用的 `dist/effects.js`、`dist/trails.js`。当前 3D 效果由 `dist/ruins-world.js` 实现。
 - 删除被沙盒取代的 `physical-track.html/js/css` 和旧坐标提案，避免两套路线同时成为联调依据。
 - 将完整硬件说明集中到 `docs/hardware-integration.md`，原 3D 说明迁至 `docs/gameplay-3d.md`；没有缩减协议字段与回执要求。
 - 保留全部 GLB、Blender 工程、贴图、渲染成果和生成工具。旧图片仍可能作为 CSS 背景或资产来源记录，不将它们误删为无用代码。

@@ -1,0 +1,15 @@
+{
+  "source": "Blender Cycles, existing GLB assets + Moon04 PBR",
+  "orthographic": true,
+  "board_cm": [
+    59.8,
+    33.6
+  ],
+  "resolution": [
+    3840,
+    2158
+  ],
+  "stages": 3,
+  "map_revision": "physical-v0.3-sandbox.1",
+  "dynamic_overlay": "canonical centimeter paths, gates, beacon, rock, quake, finish"
+}

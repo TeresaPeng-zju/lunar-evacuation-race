@@ -1,0 +1,2690 @@
+{
+  "schema": "moonfall-ruins/1",
+  "scale": 0.075,
+  "lane_offset": 32,
+  "lanes": [
+    {
+      "player": "blue",
+      "robot_id": "rover-blue",
+      "color": "#78adc5",
+      "transform": {
+        "scale": 0.075,
+        "translation": [
+          -32,
+          -55.25
+        ],
+        "equation": "X=-32-0.075*y;Y=0.075*x-55.25"
+      },
+      "visual_corridor": {
+        "kind": "union_of_polyline_buffers",
+        "half_width": 1.4,
+        "source": "all edges including detours",
+        "units": "display units only"
+      },
+      "nodes": [
+        {
+          "id": "blue/START",
+          "local": [
+            70,
+            0
+          ],
+          "xy": [
+            -32,
+            -50
+          ]
+        },
+        {
+          "id": "blue/D1",
+          "local": [
+            170,
+            0
+          ],
+          "xy": [
+            -32,
+            -42.5
+          ]
+        },
+        {
+          "id": "blue/BR0",
+          "local": [
+            420,
+            -100
+          ],
+          "xy": [
+            -24.5,
+            -23.75
+          ]
+        },
+        {
+          "id": "blue/BR1",
+          "local": [
+            620,
+            -100
+          ],
+          "xy": [
+            -24.5,
+            -8.75
+          ]
+        },
+        {
+          "id": "blue/M1",
+          "local": [
+            760,
+            0
+          ],
+          "xy": [
+            -32,
+            1.75
+          ]
+        },
+        {
+          "id": "blue/OR0",
+          "local": [
+            420,
+            185.95824966128527
+          ],
+          "xy": [
+            -45.94686872459639,
+            -23.75
+          ]
+        },
+        {
+          "id": "blue/OR1",
+          "local": [
+            620,
+            185.95824966128527
+          ],
+          "xy": [
+            -45.94686872459639,
+            -8.75
+          ]
+        },
+        {
+          "id": "blue/D2",
+          "local": [
+            1060,
+            0
+          ],
+          "xy": [
+            -32,
+            24.25
+          ]
+        },
+        {
+          "id": "blue/SR0",
+          "local": [
+            1140,
+            142.64878106528892
+          ],
+          "xy": [
+            -42.698658579896666,
+            30.25
+          ]
+        },
+        {
+          "id": "blue/SR1",
+          "local": [
+            1320,
+            142.64878106528892
+          ],
+          "xy": [
+            -42.698658579896666,
+            43.75
+          ]
+        },
+        {
+          "id": "blue/DOCK",
+          "local": [
+            1490,
+            0
+          ],
+          "xy": [
+            -32,
+            56.5
+          ]
+        },
+        {
+          "id": "blue/RR0",
+          "local": [
+            1140,
+            -35
+          ],
+          "xy": [
+            -29.375,
+            30.25
+          ]
+        },
+        {
+          "id": "blue/RR1",
+          "local": [
+            1250,
+            -35
+          ],
+          "xy": [
+            -29.375,
+            38.5
+          ]
+        },
+        {
+          "id": "blue/SOURCE",
+          "local": [
+            1280,
+            -35
+          ],
+          "xy": [
+            -29.375,
+            40.75
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "id": "blue/start",
+          "key": "start",
+          "kind": "main",
+          "name": "起点",
+          "from": "blue/START",
+          "to": "blue/D1",
+          "source_points": [
+            [
+              70,
+              0
+            ],
+            [
+              170,
+              0
+            ]
+          ],
+          "points_xy": [
+            [
+              -32,
+              -50
+            ],
+            [
+              -32,
+              -42.5
+            ]
+          ],
+          "source_length": 100,
+          "display_length_2d": 7.5,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/beaconIn",
+          "key": "beaconIn",
+          "kind": "main",
+          "name": "信标回廊",
+          "from": "blue/D1",
+          "to": "blue/BR0",
+          "source_points": [
+            [
+              170,
+              0
+            ],
+            [
+              260,
+              -100
+            ],
+            [
+              420,
+              -100
+            ]
+          ],
+          "points_xy": [
+            [
+              -32,
+              -42.5
+            ],
+            [
+              -24.5,
+              -35.75
+            ],
+            [
+              -24.5,
+              -23.75
+            ]
+          ],
+          "source_length": 294.5362404707371,
+          "display_length_2d": 22.09021803530528,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/beaconRock",
+          "key": "beaconRock",
+          "kind": "main",
+          "name": "回廊落石",
+          "from": "blue/BR0",
+          "to": "blue/BR1",
+          "source_points": [
+            [
+              420,
+              -100
+            ],
+            [
+              620,
+              -100
+            ]
+          ],
+          "points_xy": [
+            [
+              -24.5,
+              -23.75
+            ],
+            [
+              -24.5,
+              -8.75
+            ]
+          ],
+          "source_length": 200,
+          "display_length_2d": 15,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/beaconRock/detour",
+          "key": "beaconRock",
+          "kind": "rock_detour",
+          "name": "回廊落石绕行",
+          "from": "blue/BR0",
+          "to": "blue/BR1",
+          "source_points": [
+            [
+              420,
+              -100
+            ],
+            [
+              420,
+              -241.36766129708124
+            ],
+            [
+              620,
+              -241.36766129708124
+            ],
+            [
+              620,
+              -100
+            ]
+          ],
+          "points_xy": [
+            [
+              -24.5,
+              -23.75
+            ],
+            [
+              -13.897425402718909,
+              -23.75
+            ],
+            [
+              -13.897425402718909,
+              -8.75
+            ],
+            [
+              -24.5,
+              -8.75
+            ]
+          ],
+          "source_length": 482.7353225941624,
+          "display_length_2d": 36.20514919456218,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/beaconOut",
+          "key": "beaconOut",
+          "kind": "main",
+          "name": "个人舱门",
+          "from": "blue/BR1",
+          "to": "blue/M1",
+          "source_points": [
+            [
+              620,
+              -100
+            ],
+            [
+              700,
+              -100
+            ],
+            [
+              760,
+              0
+            ]
+          ],
+          "points_xy": [
+            [
+              -24.5,
+              -8.75
+            ],
+            [
+              -24.5,
+              -2.75
+            ],
+            [
+              -32,
+              1.75
+            ]
+          ],
+          "source_length": 196.61903789690598,
+          "display_length_2d": 14.746427842267948,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/outerIn",
+          "key": "outerIn",
+          "kind": "main",
+          "name": "废弃栈道",
+          "from": "blue/D1",
+          "to": "blue/OR0",
+          "source_points": [
+            [
+              170,
+              0
+            ],
+            [
+              230,
+              185.95824966128527
+            ],
+            [
+              420,
+              185.95824966128527
+            ]
+          ],
+          "points_xy": [
+            [
+              -32,
+              -42.5
+            ],
+            [
+              -45.94686872459639,
+              -38
+            ],
+            [
+              -45.94686872459639,
+              -23.75
+            ]
+          ],
+          "source_length": 385.3982359620703,
+          "display_length_2d": 28.90486769715527,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/outerRock",
+          "key": "outerRock",
+          "kind": "main",
+          "name": "外路落石",
+          "from": "blue/OR0",
+          "to": "blue/OR1",
+          "source_points": [
+            [
+              420,
+              185.95824966128527
+            ],
+            [
+              620,
+              185.95824966128527
+            ]
+          ],
+          "points_xy": [
+            [
+              -45.94686872459639,
+              -23.75
+            ],
+            [
+              -45.94686872459639,
+              -8.75
+            ]
+          ],
+          "source_length": 200,
+          "display_length_2d": 15,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/outerRock/detour",
+          "key": "outerRock",
+          "kind": "rock_detour",
+          "name": "外路落石绕行",
+          "from": "blue/OR0",
+          "to": "blue/OR1",
+          "source_points": [
+            [
+              420,
+              185.95824966128527
+            ],
+            [
+              420,
+              214.2317819207015
+            ],
+            [
+              620,
+              214.2317819207015
+            ],
+            [
+              620,
+              185.95824966128527
+            ]
+          ],
+          "points_xy": [
+            [
+              -45.94686872459639,
+              -23.75
+            ],
+            [
+              -48.06738364405261,
+              -23.75
+            ],
+            [
+              -48.06738364405261,
+              -8.75
+            ],
+            [
+              -45.94686872459639,
+              -8.75
+            ]
+          ],
+          "source_length": 256.5470645188325,
+          "display_length_2d": 19.241029838912436,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/outerOut",
+          "key": "outerOut",
+          "kind": "main",
+          "name": "栈道汇入",
+          "from": "blue/OR1",
+          "to": "blue/M1",
+          "source_points": [
+            [
+              620,
+              185.95824966128527
+            ],
+            [
+              700,
+              185.95824966128527
+            ],
+            [
+              760,
+              0
+            ]
+          ],
+          "points_xy": [
+            [
+              -45.94686872459639,
+              -8.75
+            ],
+            [
+              -45.94686872459639,
+              -2.75
+            ],
+            [
+              -32,
+              1.75
+            ]
+          ],
+          "source_length": 275.3982359620703,
+          "display_length_2d": 20.65486769715527,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/common",
+          "key": "common",
+          "kind": "main",
+          "name": "月震选路缓冲",
+          "from": "blue/M1",
+          "to": "blue/D2",
+          "source_points": [
+            [
+              760,
+              0
+            ],
+            [
+              790,
+              0
+            ],
+            [
+              850,
+              -90
+            ],
+            [
+              1000,
+              -90
+            ],
+            [
+              1060,
+              0
+            ]
+          ],
+          "points_xy": [
+            [
+              -32,
+              1.75
+            ],
+            [
+              -32,
+              4
+            ],
+            [
+              -25.25,
+              8.5
+            ],
+            [
+              -25.25,
+              19.75
+            ],
+            [
+              -32,
+              24.25
+            ]
+          ],
+          "source_length": 396.33307652783935,
+          "display_length_2d": 29.72498073958795,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/safeIn",
+          "key": "safeIn",
+          "kind": "main",
+          "name": "归航环路",
+          "from": "blue/D2",
+          "to": "blue/SR0",
+          "source_points": [
+            [
+              1060,
+              0
+            ],
+            [
+              1140,
+              142.64878106528892
+            ]
+          ],
+          "points_xy": [
+            [
+              -32,
+              24.25
+            ],
+            [
+              -42.698658579896666,
+              30.25
+            ]
+          ],
+          "source_length": 163.5502208479485,
+          "display_length_2d": 12.266266563596139,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/safeRock",
+          "key": "safeRock",
+          "kind": "main",
+          "name": "环路落石",
+          "from": "blue/SR0",
+          "to": "blue/SR1",
+          "source_points": [
+            [
+              1140,
+              142.64878106528892
+            ],
+            [
+              1320,
+              142.64878106528892
+            ]
+          ],
+          "points_xy": [
+            [
+              -42.698658579896666,
+              30.25
+            ],
+            [
+              -42.698658579896666,
+              43.75
+            ]
+          ],
+          "source_length": 180,
+          "display_length_2d": 13.5,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/safeRock/detour",
+          "key": "safeRock",
+          "kind": "rock_detour",
+          "name": "环路落石绕行",
+          "from": "blue/SR0",
+          "to": "blue/SR1",
+          "source_points": [
+            [
+              1140,
+              142.64878106528892
+            ],
+            [
+              1140,
+              213.33261171382952
+            ],
+            [
+              1320,
+              213.33261171382952
+            ],
+            [
+              1320,
+              142.64878106528892
+            ]
+          ],
+          "points_xy": [
+            [
+              -42.698658579896666,
+              30.25
+            ],
+            [
+              -47.99994587853721,
+              30.25
+            ],
+            [
+              -47.99994587853721,
+              43.75
+            ],
+            [
+              -42.698658579896666,
+              43.75
+            ]
+          ],
+          "source_length": 321.3676612970812,
+          "display_length_2d": 24.10257459728109,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/safeOut",
+          "key": "safeOut",
+          "kind": "main",
+          "name": "归航末段",
+          "from": "blue/SR1",
+          "to": "blue/DOCK",
+          "source_points": [
+            [
+              1320,
+              142.64878106528892
+            ],
+            [
+              1490,
+              0
+            ]
+          ],
+          "points_xy": [
+            [
+              -42.698658579896666,
+              43.75
+            ],
+            [
+              -32,
+              56.5
+            ]
+          ],
+          "source_length": 221.9204243403764,
+          "display_length_2d": 16.64403182552823,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/riskIn",
+          "key": "riskIn",
+          "kind": "main",
+          "name": "碎隙捷径入口",
+          "from": "blue/D2",
+          "to": "blue/RR0",
+          "source_points": [
+            [
+              1060,
+              0
+            ],
+            [
+              1140,
+              -35
+            ]
+          ],
+          "points_xy": [
+            [
+              -32,
+              24.25
+            ],
+            [
+              -29.375,
+              30.25
+            ]
+          ],
+          "source_length": 87.3212459828649,
+          "display_length_2d": 6.549093448714867,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/riskRock",
+          "key": "riskRock",
+          "kind": "main",
+          "name": "捷径入口落石",
+          "from": "blue/RR0",
+          "to": "blue/RR1",
+          "source_points": [
+            [
+              1140,
+              -35
+            ],
+            [
+              1250,
+              -35
+            ]
+          ],
+          "points_xy": [
+            [
+              -29.375,
+              30.25
+            ],
+            [
+              -29.375,
+              38.5
+            ]
+          ],
+          "source_length": 110,
+          "display_length_2d": 8.25,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/riskRock/detour",
+          "key": "riskRock",
+          "kind": "rock_detour",
+          "name": "捷径入口落石绕行",
+          "from": "blue/RR0",
+          "to": "blue/RR1",
+          "source_points": [
+            [
+              1140,
+              -35
+            ],
+            [
+              1140,
+              -105.68383064854062
+            ],
+            [
+              1250,
+              -105.68383064854062
+            ],
+            [
+              1250,
+              -35
+            ]
+          ],
+          "points_xy": [
+            [
+              -29.375,
+              30.25
+            ],
+            [
+              -24.073712701359455,
+              30.25
+            ],
+            [
+              -24.073712701359455,
+              38.5
+            ],
+            [
+              -29.375,
+              38.5
+            ]
+          ],
+          "source_length": 251.3676612970812,
+          "display_length_2d": 18.85257459728109,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/source",
+          "key": "source",
+          "kind": "main",
+          "name": "内部震源",
+          "from": "blue/RR1",
+          "to": "blue/SOURCE",
+          "source_points": [
+            [
+              1250,
+              -35
+            ],
+            [
+              1280,
+              -35
+            ]
+          ],
+          "points_xy": [
+            [
+              -29.375,
+              38.5
+            ],
+            [
+              -29.375,
+              40.75
+            ]
+          ],
+          "source_length": 30,
+          "display_length_2d": 2.25,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/stable",
+          "key": "stable",
+          "kind": "stable",
+          "name": "稳定直达",
+          "from": "blue/SOURCE",
+          "to": "blue/DOCK",
+          "source_points": [
+            [
+              1280,
+              -35
+            ],
+            [
+              1490,
+              0
+            ]
+          ],
+          "points_xy": [
+            [
+              -29.375,
+              40.75
+            ],
+            [
+              -32,
+              56.5
+            ]
+          ],
+          "source_length": 212.89668856043767,
+          "display_length_2d": 15.967251642032824,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "blue/collapse",
+          "key": "collapse",
+          "kind": "collapse_detour",
+          "name": "塌陷绕行",
+          "from": "blue/SOURCE",
+          "to": "blue/DOCK",
+          "source_points": [
+            [
+              1280,
+              -35
+            ],
+            [
+              1280,
+              -190
+            ],
+            [
+              1450,
+              -190
+            ],
+            [
+              1490,
+              0
+            ]
+          ],
+          "points_xy": [
+            [
+              -29.375,
+              40.75
+            ],
+            [
+              -17.75,
+              40.75
+            ],
+            [
+              -17.75,
+              53.5
+            ],
+            [
+              -32,
+              56.5
+            ]
+          ],
+          "source_length": 519.1648783894759,
+          "display_length_2d": 38.937365879210695,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        }
+      ],
+      "events": [
+        {
+          "semantics": {
+            "condition": "race starts after both opening choices are set",
+            "shape": "state event; point is visual marker"
+          },
+          "id": "blue/START",
+          "label": "START",
+          "name": "起点",
+          "source_point": [
+            70,
+            0
+          ],
+          "xy": [
+            -32,
+            -50
+          ],
+          "scope": "personal",
+          "activation": null
+        },
+        {
+          "semantics": {
+            "condition": "opening choice locked before race start",
+            "shape": "branch junction, not an extra prompt"
+          },
+          "id": "blue/D1",
+          "label": "D1",
+          "name": "第一次岔路",
+          "source_point": [
+            170,
+            0
+          ],
+          "xy": [
+            -32,
+            -42.5
+          ],
+          "scope": "personal",
+          "activation": null
+        },
+        {
+          "semantics": {
+            "condition": "distance(source position,[285,-100]) < 18 on beacon opening",
+            "shape": "circle",
+            "source_radius": 18,
+            "display_radius": 1.3499999999999999
+          },
+          "id": "blue/B",
+          "label": "B",
+          "name": "个人信标",
+          "source_point": [
+            285,
+            -100
+          ],
+          "xy": [
+            -24.5,
+            -33.875
+          ],
+          "scope": "personal",
+          "activation": null
+        },
+        {
+          "semantics": {
+            "condition": "own beacon grants permission; permission cleared once source x > 670",
+            "shape": "visual gate anchor; no invented proximity trigger"
+          },
+          "id": "blue/G",
+          "label": "G",
+          "name": "个人舱门",
+          "source_point": [
+            650,
+            -100
+          ],
+          "xy": [
+            -24.5,
+            -6.5
+          ],
+          "scope": "personal",
+          "activation": "personal beacon permission"
+        },
+        {
+          "semantics": {
+            "condition": "first player enters common edge",
+            "shape": "edge-entry event, shared once"
+          },
+          "id": "blue/Q",
+          "label": "Q",
+          "name": "共享月震触发",
+          "source_point": [
+            760,
+            0
+          ],
+          "xy": [
+            -32,
+            1.75
+          ],
+          "scope": "first_entry_triggers_shared_once",
+          "activation": null
+        },
+        {
+          "semantics": {
+            "condition": "final branch follows the shared choice result",
+            "shape": "branch junction, not an extra 7-second window"
+          },
+          "id": "blue/D2",
+          "label": "D2",
+          "name": "最后岔路",
+          "source_point": [
+            1060,
+            0
+          ],
+          "xy": [
+            -32,
+            24.25
+          ],
+          "scope": "personal",
+          "activation": null
+        },
+        {
+          "semantics": {
+            "condition": "first risk player completes source edge",
+            "shape": "edge-completion event, shared once"
+          },
+          "id": "blue/S",
+          "label": "S",
+          "name": "共享余震源点",
+          "source_point": [
+            1280,
+            -35
+          ],
+          "xy": [
+            -29.375,
+            40.75
+          ],
+          "scope": "first_entry_triggers_shared_once",
+          "activation": "risk route only"
+        },
+        {
+          "semantics": {
+            "condition": "route queue completed",
+            "shape": "graph terminal; physical finish polygon is defined separately"
+          },
+          "id": "blue/F",
+          "label": "F",
+          "name": "个人飞船停靠区",
+          "source_point": [
+            1490,
+            0
+          ],
+          "xy": [
+            -32,
+            56.5
+          ],
+          "scope": "personal",
+          "activation": null
+        }
+      ],
+      "rocks": [
+        {
+          "id": "blue/R1",
+          "edge": "blue/beaconRock",
+          "detour": "blue/beaconRock/detour",
+          "label": "R1",
+          "source_point": [
+            520,
+            -100
+          ],
+          "xy": [
+            -24.5,
+            -16.25
+          ],
+          "fork": [
+            -24.5,
+            -23.75
+          ],
+          "merge": [
+            -24.5,
+            -8.75
+          ],
+          "clear_condition": "target completes detour",
+          "warning_seconds": 2,
+          "uses_per_attacker": 1,
+          "physical_alias": "rover-blue/s1/beacon"
+        },
+        {
+          "id": "blue/R2",
+          "edge": "blue/outerRock",
+          "detour": "blue/outerRock/detour",
+          "label": "R2",
+          "source_point": [
+            520,
+            185.95824966128527
+          ],
+          "xy": [
+            -45.94686872459639,
+            -16.25
+          ],
+          "fork": [
+            -45.94686872459639,
+            -23.75
+          ],
+          "merge": [
+            -45.94686872459639,
+            -8.75
+          ],
+          "clear_condition": "target completes detour",
+          "warning_seconds": 2,
+          "uses_per_attacker": 1,
+          "physical_alias": "rover-blue/s1/outer"
+        },
+        {
+          "id": "blue/R3",
+          "edge": "blue/safeRock",
+          "detour": "blue/safeRock/detour",
+          "label": "R3",
+          "source_point": [
+            1230,
+            142.64878106528892
+          ],
+          "xy": [
+            -42.698658579896666,
+            37
+          ],
+          "fork": [
+            -42.698658579896666,
+            30.25
+          ],
+          "merge": [
+            -42.698658579896666,
+            43.75
+          ],
+          "clear_condition": "target completes detour",
+          "warning_seconds": 2,
+          "uses_per_attacker": 1,
+          "physical_alias": "rover-blue/s3/entry"
+        },
+        {
+          "id": "blue/R4",
+          "edge": "blue/riskRock",
+          "detour": "blue/riskRock/detour",
+          "label": "R4",
+          "source_point": [
+            1195,
+            -35
+          ],
+          "xy": [
+            -29.375,
+            34.375
+          ],
+          "fork": [
+            -29.375,
+            30.25
+          ],
+          "merge": [
+            -29.375,
+            38.5
+          ],
+          "clear_condition": "target completes detour",
+          "warning_seconds": 2,
+          "uses_per_attacker": 1,
+          "physical_alias": "rover-blue/s3/entry"
+        }
+      ]
+    },
+    {
+      "player": "gold",
+      "robot_id": "rover-gold",
+      "color": "#d7b372",
+      "transform": {
+        "scale": 0.075,
+        "translation": [
+          32,
+          -55.25
+        ],
+        "equation": "X=32+0.075*y;Y=0.075*x-55.25"
+      },
+      "visual_corridor": {
+        "kind": "union_of_polyline_buffers",
+        "half_width": 1.4,
+        "source": "all edges including detours",
+        "units": "display units only"
+      },
+      "nodes": [
+        {
+          "id": "gold/START",
+          "local": [
+            70,
+            0
+          ],
+          "xy": [
+            32,
+            -50
+          ]
+        },
+        {
+          "id": "gold/D1",
+          "local": [
+            170,
+            0
+          ],
+          "xy": [
+            32,
+            -42.5
+          ]
+        },
+        {
+          "id": "gold/BR0",
+          "local": [
+            420,
+            -100
+          ],
+          "xy": [
+            24.5,
+            -23.75
+          ]
+        },
+        {
+          "id": "gold/BR1",
+          "local": [
+            620,
+            -100
+          ],
+          "xy": [
+            24.5,
+            -8.75
+          ]
+        },
+        {
+          "id": "gold/M1",
+          "local": [
+            760,
+            0
+          ],
+          "xy": [
+            32,
+            1.75
+          ]
+        },
+        {
+          "id": "gold/OR0",
+          "local": [
+            420,
+            185.95824966128527
+          ],
+          "xy": [
+            45.94686872459639,
+            -23.75
+          ]
+        },
+        {
+          "id": "gold/OR1",
+          "local": [
+            620,
+            185.95824966128527
+          ],
+          "xy": [
+            45.94686872459639,
+            -8.75
+          ]
+        },
+        {
+          "id": "gold/D2",
+          "local": [
+            1060,
+            0
+          ],
+          "xy": [
+            32,
+            24.25
+          ]
+        },
+        {
+          "id": "gold/SR0",
+          "local": [
+            1140,
+            142.64878106528892
+          ],
+          "xy": [
+            42.698658579896666,
+            30.25
+          ]
+        },
+        {
+          "id": "gold/SR1",
+          "local": [
+            1320,
+            142.64878106528892
+          ],
+          "xy": [
+            42.698658579896666,
+            43.75
+          ]
+        },
+        {
+          "id": "gold/DOCK",
+          "local": [
+            1490,
+            0
+          ],
+          "xy": [
+            32,
+            56.5
+          ]
+        },
+        {
+          "id": "gold/RR0",
+          "local": [
+            1140,
+            -35
+          ],
+          "xy": [
+            29.375,
+            30.25
+          ]
+        },
+        {
+          "id": "gold/RR1",
+          "local": [
+            1250,
+            -35
+          ],
+          "xy": [
+            29.375,
+            38.5
+          ]
+        },
+        {
+          "id": "gold/SOURCE",
+          "local": [
+            1280,
+            -35
+          ],
+          "xy": [
+            29.375,
+            40.75
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "id": "gold/start",
+          "key": "start",
+          "kind": "main",
+          "name": "起点",
+          "from": "gold/START",
+          "to": "gold/D1",
+          "source_points": [
+            [
+              70,
+              0
+            ],
+            [
+              170,
+              0
+            ]
+          ],
+          "points_xy": [
+            [
+              32,
+              -50
+            ],
+            [
+              32,
+              -42.5
+            ]
+          ],
+          "source_length": 100,
+          "display_length_2d": 7.5,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/beaconIn",
+          "key": "beaconIn",
+          "kind": "main",
+          "name": "信标回廊",
+          "from": "gold/D1",
+          "to": "gold/BR0",
+          "source_points": [
+            [
+              170,
+              0
+            ],
+            [
+              260,
+              -100
+            ],
+            [
+              420,
+              -100
+            ]
+          ],
+          "points_xy": [
+            [
+              32,
+              -42.5
+            ],
+            [
+              24.5,
+              -35.75
+            ],
+            [
+              24.5,
+              -23.75
+            ]
+          ],
+          "source_length": 294.5362404707371,
+          "display_length_2d": 22.09021803530528,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/beaconRock",
+          "key": "beaconRock",
+          "kind": "main",
+          "name": "回廊落石",
+          "from": "gold/BR0",
+          "to": "gold/BR1",
+          "source_points": [
+            [
+              420,
+              -100
+            ],
+            [
+              620,
+              -100
+            ]
+          ],
+          "points_xy": [
+            [
+              24.5,
+              -23.75
+            ],
+            [
+              24.5,
+              -8.75
+            ]
+          ],
+          "source_length": 200,
+          "display_length_2d": 15,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/beaconRock/detour",
+          "key": "beaconRock",
+          "kind": "rock_detour",
+          "name": "回廊落石绕行",
+          "from": "gold/BR0",
+          "to": "gold/BR1",
+          "source_points": [
+            [
+              420,
+              -100
+            ],
+            [
+              420,
+              -241.36766129708124
+            ],
+            [
+              620,
+              -241.36766129708124
+            ],
+            [
+              620,
+              -100
+            ]
+          ],
+          "points_xy": [
+            [
+              24.5,
+              -23.75
+            ],
+            [
+              13.897425402718909,
+              -23.75
+            ],
+            [
+              13.897425402718909,
+              -8.75
+            ],
+            [
+              24.5,
+              -8.75
+            ]
+          ],
+          "source_length": 482.7353225941624,
+          "display_length_2d": 36.20514919456218,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/beaconOut",
+          "key": "beaconOut",
+          "kind": "main",
+          "name": "个人舱门",
+          "from": "gold/BR1",
+          "to": "gold/M1",
+          "source_points": [
+            [
+              620,
+              -100
+            ],
+            [
+              700,
+              -100
+            ],
+            [
+              760,
+              0
+            ]
+          ],
+          "points_xy": [
+            [
+              24.5,
+              -8.75
+            ],
+            [
+              24.5,
+              -2.75
+            ],
+            [
+              32,
+              1.75
+            ]
+          ],
+          "source_length": 196.61903789690598,
+          "display_length_2d": 14.746427842267948,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/outerIn",
+          "key": "outerIn",
+          "kind": "main",
+          "name": "废弃栈道",
+          "from": "gold/D1",
+          "to": "gold/OR0",
+          "source_points": [
+            [
+              170,
+              0
+            ],
+            [
+              230,
+              185.95824966128527
+            ],
+            [
+              420,
+              185.95824966128527
+            ]
+          ],
+          "points_xy": [
+            [
+              32,
+              -42.5
+            ],
+            [
+              45.94686872459639,
+              -38
+            ],
+            [
+              45.94686872459639,
+              -23.75
+            ]
+          ],
+          "source_length": 385.3982359620703,
+          "display_length_2d": 28.90486769715527,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/outerRock",
+          "key": "outerRock",
+          "kind": "main",
+          "name": "外路落石",
+          "from": "gold/OR0",
+          "to": "gold/OR1",
+          "source_points": [
+            [
+              420,
+              185.95824966128527
+            ],
+            [
+              620,
+              185.95824966128527
+            ]
+          ],
+          "points_xy": [
+            [
+              45.94686872459639,
+              -23.75
+            ],
+            [
+              45.94686872459639,
+              -8.75
+            ]
+          ],
+          "source_length": 200,
+          "display_length_2d": 15,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/outerRock/detour",
+          "key": "outerRock",
+          "kind": "rock_detour",
+          "name": "外路落石绕行",
+          "from": "gold/OR0",
+          "to": "gold/OR1",
+          "source_points": [
+            [
+              420,
+              185.95824966128527
+            ],
+            [
+              420,
+              214.2317819207015
+            ],
+            [
+              620,
+              214.2317819207015
+            ],
+            [
+              620,
+              185.95824966128527
+            ]
+          ],
+          "points_xy": [
+            [
+              45.94686872459639,
+              -23.75
+            ],
+            [
+              48.06738364405261,
+              -23.75
+            ],
+            [
+              48.06738364405261,
+              -8.75
+            ],
+            [
+              45.94686872459639,
+              -8.75
+            ]
+          ],
+          "source_length": 256.5470645188325,
+          "display_length_2d": 19.241029838912436,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/outerOut",
+          "key": "outerOut",
+          "kind": "main",
+          "name": "栈道汇入",
+          "from": "gold/OR1",
+          "to": "gold/M1",
+          "source_points": [
+            [
+              620,
+              185.95824966128527
+            ],
+            [
+              700,
+              185.95824966128527
+            ],
+            [
+              760,
+              0
+            ]
+          ],
+          "points_xy": [
+            [
+              45.94686872459639,
+              -8.75
+            ],
+            [
+              45.94686872459639,
+              -2.75
+            ],
+            [
+              32,
+              1.75
+            ]
+          ],
+          "source_length": 275.3982359620703,
+          "display_length_2d": 20.65486769715527,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/common",
+          "key": "common",
+          "kind": "main",
+          "name": "月震选路缓冲",
+          "from": "gold/M1",
+          "to": "gold/D2",
+          "source_points": [
+            [
+              760,
+              0
+            ],
+            [
+              790,
+              0
+            ],
+            [
+              850,
+              -90
+            ],
+            [
+              1000,
+              -90
+            ],
+            [
+              1060,
+              0
+            ]
+          ],
+          "points_xy": [
+            [
+              32,
+              1.75
+            ],
+            [
+              32,
+              4
+            ],
+            [
+              25.25,
+              8.5
+            ],
+            [
+              25.25,
+              19.75
+            ],
+            [
+              32,
+              24.25
+            ]
+          ],
+          "source_length": 396.33307652783935,
+          "display_length_2d": 29.72498073958795,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/safeIn",
+          "key": "safeIn",
+          "kind": "main",
+          "name": "归航环路",
+          "from": "gold/D2",
+          "to": "gold/SR0",
+          "source_points": [
+            [
+              1060,
+              0
+            ],
+            [
+              1140,
+              142.64878106528892
+            ]
+          ],
+          "points_xy": [
+            [
+              32,
+              24.25
+            ],
+            [
+              42.698658579896666,
+              30.25
+            ]
+          ],
+          "source_length": 163.5502208479485,
+          "display_length_2d": 12.266266563596139,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/safeRock",
+          "key": "safeRock",
+          "kind": "main",
+          "name": "环路落石",
+          "from": "gold/SR0",
+          "to": "gold/SR1",
+          "source_points": [
+            [
+              1140,
+              142.64878106528892
+            ],
+            [
+              1320,
+              142.64878106528892
+            ]
+          ],
+          "points_xy": [
+            [
+              42.698658579896666,
+              30.25
+            ],
+            [
+              42.698658579896666,
+              43.75
+            ]
+          ],
+          "source_length": 180,
+          "display_length_2d": 13.5,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/safeRock/detour",
+          "key": "safeRock",
+          "kind": "rock_detour",
+          "name": "环路落石绕行",
+          "from": "gold/SR0",
+          "to": "gold/SR1",
+          "source_points": [
+            [
+              1140,
+              142.64878106528892
+            ],
+            [
+              1140,
+              213.33261171382952
+            ],
+            [
+              1320,
+              213.33261171382952
+            ],
+            [
+              1320,
+              142.64878106528892
+            ]
+          ],
+          "points_xy": [
+            [
+              42.698658579896666,
+              30.25
+            ],
+            [
+              47.99994587853721,
+              30.25
+            ],
+            [
+              47.99994587853721,
+              43.75
+            ],
+            [
+              42.698658579896666,
+              43.75
+            ]
+          ],
+          "source_length": 321.3676612970812,
+          "display_length_2d": 24.10257459728109,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/safeOut",
+          "key": "safeOut",
+          "kind": "main",
+          "name": "归航末段",
+          "from": "gold/SR1",
+          "to": "gold/DOCK",
+          "source_points": [
+            [
+              1320,
+              142.64878106528892
+            ],
+            [
+              1490,
+              0
+            ]
+          ],
+          "points_xy": [
+            [
+              42.698658579896666,
+              43.75
+            ],
+            [
+              32,
+              56.5
+            ]
+          ],
+          "source_length": 221.9204243403764,
+          "display_length_2d": 16.64403182552823,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/riskIn",
+          "key": "riskIn",
+          "kind": "main",
+          "name": "碎隙捷径入口",
+          "from": "gold/D2",
+          "to": "gold/RR0",
+          "source_points": [
+            [
+              1060,
+              0
+            ],
+            [
+              1140,
+              -35
+            ]
+          ],
+          "points_xy": [
+            [
+              32,
+              24.25
+            ],
+            [
+              29.375,
+              30.25
+            ]
+          ],
+          "source_length": 87.3212459828649,
+          "display_length_2d": 6.549093448714867,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/riskRock",
+          "key": "riskRock",
+          "kind": "main",
+          "name": "捷径入口落石",
+          "from": "gold/RR0",
+          "to": "gold/RR1",
+          "source_points": [
+            [
+              1140,
+              -35
+            ],
+            [
+              1250,
+              -35
+            ]
+          ],
+          "points_xy": [
+            [
+              29.375,
+              30.25
+            ],
+            [
+              29.375,
+              38.5
+            ]
+          ],
+          "source_length": 110,
+          "display_length_2d": 8.25,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/riskRock/detour",
+          "key": "riskRock",
+          "kind": "rock_detour",
+          "name": "捷径入口落石绕行",
+          "from": "gold/RR0",
+          "to": "gold/RR1",
+          "source_points": [
+            [
+              1140,
+              -35
+            ],
+            [
+              1140,
+              -105.68383064854062
+            ],
+            [
+              1250,
+              -105.68383064854062
+            ],
+            [
+              1250,
+              -35
+            ]
+          ],
+          "points_xy": [
+            [
+              29.375,
+              30.25
+            ],
+            [
+              24.073712701359455,
+              30.25
+            ],
+            [
+              24.073712701359455,
+              38.5
+            ],
+            [
+              29.375,
+              38.5
+            ]
+          ],
+          "source_length": 251.3676612970812,
+          "display_length_2d": 18.85257459728109,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/source",
+          "key": "source",
+          "kind": "main",
+          "name": "内部震源",
+          "from": "gold/RR1",
+          "to": "gold/SOURCE",
+          "source_points": [
+            [
+              1250,
+              -35
+            ],
+            [
+              1280,
+              -35
+            ]
+          ],
+          "points_xy": [
+            [
+              29.375,
+              38.5
+            ],
+            [
+              29.375,
+              40.75
+            ]
+          ],
+          "source_length": 30,
+          "display_length_2d": 2.25,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/stable",
+          "key": "stable",
+          "kind": "stable",
+          "name": "稳定直达",
+          "from": "gold/SOURCE",
+          "to": "gold/DOCK",
+          "source_points": [
+            [
+              1280,
+              -35
+            ],
+            [
+              1490,
+              0
+            ]
+          ],
+          "points_xy": [
+            [
+              29.375,
+              40.75
+            ],
+            [
+              32,
+              56.5
+            ]
+          ],
+          "source_length": 212.89668856043767,
+          "display_length_2d": 15.967251642032824,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        },
+        {
+          "id": "gold/collapse",
+          "key": "collapse",
+          "kind": "collapse_detour",
+          "name": "塌陷绕行",
+          "from": "gold/SOURCE",
+          "to": "gold/DOCK",
+          "source_points": [
+            [
+              1280,
+              -35
+            ],
+            [
+              1280,
+              -190
+            ],
+            [
+              1450,
+              -190
+            ],
+            [
+              1490,
+              0
+            ]
+          ],
+          "points_xy": [
+            [
+              29.375,
+              40.75
+            ],
+            [
+              17.75,
+              40.75
+            ],
+            [
+              17.75,
+              53.5
+            ],
+            [
+              32,
+              56.5
+            ]
+          ],
+          "source_length": 519.1648783894759,
+          "display_length_2d": 38.937365879210695,
+          "visual_width": 1.7,
+          "not_motor_coordinates": true
+        }
+      ],
+      "events": [
+        {
+          "semantics": {
+            "condition": "race starts after both opening choices are set",
+            "shape": "state event; point is visual marker"
+          },
+          "id": "gold/START",
+          "label": "START",
+          "name": "起点",
+          "source_point": [
+            70,
+            0
+          ],
+          "xy": [
+            32,
+            -50
+          ],
+          "scope": "personal",
+          "activation": null
+        },
+        {
+          "semantics": {
+            "condition": "opening choice locked before race start",
+            "shape": "branch junction, not an extra prompt"
+          },
+          "id": "gold/D1",
+          "label": "D1",
+          "name": "第一次岔路",
+          "source_point": [
+            170,
+            0
+          ],
+          "xy": [
+            32,
+            -42.5
+          ],
+          "scope": "personal",
+          "activation": null
+        },
+        {
+          "semantics": {
+            "condition": "distance(source position,[285,-100]) < 18 on beacon opening",
+            "shape": "circle",
+            "source_radius": 18,
+            "display_radius": 1.3499999999999999
+          },
+          "id": "gold/B",
+          "label": "B",
+          "name": "个人信标",
+          "source_point": [
+            285,
+            -100
+          ],
+          "xy": [
+            24.5,
+            -33.875
+          ],
+          "scope": "personal",
+          "activation": null
+        },
+        {
+          "semantics": {
+            "condition": "own beacon grants permission; permission cleared once source x > 670",
+            "shape": "visual gate anchor; no invented proximity trigger"
+          },
+          "id": "gold/G",
+          "label": "G",
+          "name": "个人舱门",
+          "source_point": [
+            650,
+            -100
+          ],
+          "xy": [
+            24.5,
+            -6.5
+          ],
+          "scope": "personal",
+          "activation": "personal beacon permission"
+        },
+        {
+          "semantics": {
+            "condition": "first player enters common edge",
+            "shape": "edge-entry event, shared once"
+          },
+          "id": "gold/Q",
+          "label": "Q",
+          "name": "共享月震触发",
+          "source_point": [
+            760,
+            0
+          ],
+          "xy": [
+            32,
+            1.75
+          ],
+          "scope": "first_entry_triggers_shared_once",
+          "activation": null
+        },
+        {
+          "semantics": {
+            "condition": "final branch follows the shared choice result",
+            "shape": "branch junction, not an extra 7-second window"
+          },
+          "id": "gold/D2",
+          "label": "D2",
+          "name": "最后岔路",
+          "source_point": [
+            1060,
+            0
+          ],
+          "xy": [
+            32,
+            24.25
+          ],
+          "scope": "personal",
+          "activation": null
+        },
+        {
+          "semantics": {
+            "condition": "first risk player completes source edge",
+            "shape": "edge-completion event, shared once"
+          },
+          "id": "gold/S",
+          "label": "S",
+          "name": "共享余震源点",
+          "source_point": [
+            1280,
+            -35
+          ],
+          "xy": [
+            29.375,
+            40.75
+          ],
+          "scope": "first_entry_triggers_shared_once",
+          "activation": "risk route only"
+        },
+        {
+          "semantics": {
+            "condition": "route queue completed",
+            "shape": "graph terminal; physical finish polygon is defined separately"
+          },
+          "id": "gold/F",
+          "label": "F",
+          "name": "个人飞船停靠区",
+          "source_point": [
+            1490,
+            0
+          ],
+          "xy": [
+            32,
+            56.5
+          ],
+          "scope": "personal",
+          "activation": null
+        }
+      ],
+      "rocks": [
+        {
+          "id": "gold/R1",
+          "edge": "gold/beaconRock",
+          "detour": "gold/beaconRock/detour",
+          "label": "R1",
+          "source_point": [
+            520,
+            -100
+          ],
+          "xy": [
+            24.5,
+            -16.25
+          ],
+          "fork": [
+            24.5,
+            -23.75
+          ],
+          "merge": [
+            24.5,
+            -8.75
+          ],
+          "clear_condition": "target completes detour",
+          "warning_seconds": 2,
+          "uses_per_attacker": 1,
+          "physical_alias": "rover-gold/s1/beacon"
+        },
+        {
+          "id": "gold/R2",
+          "edge": "gold/outerRock",
+          "detour": "gold/outerRock/detour",
+          "label": "R2",
+          "source_point": [
+            520,
+            185.95824966128527
+          ],
+          "xy": [
+            45.94686872459639,
+            -16.25
+          ],
+          "fork": [
+            45.94686872459639,
+            -23.75
+          ],
+          "merge": [
+            45.94686872459639,
+            -8.75
+          ],
+          "clear_condition": "target completes detour",
+          "warning_seconds": 2,
+          "uses_per_attacker": 1,
+          "physical_alias": "rover-gold/s1/outer"
+        },
+        {
+          "id": "gold/R3",
+          "edge": "gold/safeRock",
+          "detour": "gold/safeRock/detour",
+          "label": "R3",
+          "source_point": [
+            1230,
+            142.64878106528892
+          ],
+          "xy": [
+            42.698658579896666,
+            37
+          ],
+          "fork": [
+            42.698658579896666,
+            30.25
+          ],
+          "merge": [
+            42.698658579896666,
+            43.75
+          ],
+          "clear_condition": "target completes detour",
+          "warning_seconds": 2,
+          "uses_per_attacker": 1,
+          "physical_alias": "rover-gold/s3/entry"
+        },
+        {
+          "id": "gold/R4",
+          "edge": "gold/riskRock",
+          "detour": "gold/riskRock/detour",
+          "label": "R4",
+          "source_point": [
+            1195,
+            -35
+          ],
+          "xy": [
+            29.375,
+            34.375
+          ],
+          "fork": [
+            29.375,
+            30.25
+          ],
+          "merge": [
+            29.375,
+            38.5
+          ],
+          "clear_condition": "target completes detour",
+          "warning_seconds": 2,
+          "uses_per_attacker": 1,
+          "physical_alias": "rover-gold/s3/entry"
+        }
+      ]
+    }
+  ],
+  "cameras": [
+    {
+      "name": "CAM_MASTER_3Q",
+      "position": [
+        130,
+        -190,
+        170
+      ],
+      "target": [
+        0,
+        16,
+        0
+      ],
+      "ortho_scale": 176
+    },
+    {
+      "name": "CAM_MASTER_TOP",
+      "position": [
+        0,
+        17,
+        260
+      ],
+      "target": [
+        0,
+        17,
+        0
+      ],
+      "ortho_scale": 188
+    },
+    {
+      "name": "CAM_DETAIL",
+      "position": [
+        54,
+        -58,
+        43
+      ],
+      "target": [
+        0,
+        18,
+        3
+      ],
+      "ortho_scale": 74
+    }
+  ],
+  "assets": [
+    {
+      "id": "RUIN_CORE",
+      "file": "dist/assets/reference-models/central-ruin.glb",
+      "xy": [
+        0,
+        13
+      ],
+      "footprint_max": 19,
+      "rotation_deg": 0,
+      "zone": "central_ruin",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "LAB_W",
+      "file": "dist/assets/reference-models/research-station.glb",
+      "xy": [
+        -37,
+        -17
+      ],
+      "footprint_max": 7.2,
+      "rotation_deg": 0,
+      "zone": "research",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "SUPPLY_W",
+      "file": "dist/assets/reference-models/supply-station.glb",
+      "xy": [
+        -37,
+        -30
+      ],
+      "footprint_max": 6,
+      "rotation_deg": 0,
+      "zone": "research",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "COMMS_W",
+      "file": "dist/assets/reference-models/arc-towers.glb",
+      "xy": [
+        -9,
+        -33
+      ],
+      "footprint_max": 6.5,
+      "rotation_deg": 0,
+      "zone": "energy",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "BEACON_BLUE",
+      "file": "dist/assets/reference-models/beacon-1.glb",
+      "xy": [
+        -19.5,
+        -33.875
+      ],
+      "footprint_max": 4.5,
+      "rotation_deg": 0,
+      "zone": "beacon",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "BEACON_GOLD",
+      "file": "dist/assets/reference-models/beacon-1.glb",
+      "xy": [
+        19.5,
+        -33.875
+      ],
+      "footprint_max": 4.5,
+      "rotation_deg": 0,
+      "zone": "beacon",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "EXTRACTOR_E",
+      "file": "dist/assets/reference-models/helium-extractor.glb",
+      "xy": [
+        37,
+        -17
+      ],
+      "footprint_max": 7,
+      "rotation_deg": 0,
+      "zone": "mining",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "DRILL_E",
+      "file": "dist/assets/reference-models/drilling-platform.glb",
+      "xy": [
+        36,
+        -30
+      ],
+      "footprint_max": 7,
+      "rotation_deg": 0,
+      "zone": "mining",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "CAMP_W",
+      "file": "dist/assets/reference-models/abandoned-camp.glb",
+      "xy": [
+        -56,
+        18
+      ],
+      "footprint_max": 8,
+      "rotation_deg": 0,
+      "zone": "abandoned",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "WALKWAY_E",
+      "file": "dist/assets/reference-models/broken-walkway.glb",
+      "xy": [
+        11,
+        7
+      ],
+      "footprint_max": 7,
+      "rotation_deg": 0,
+      "zone": "central_ruin",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "PAD_BLUE",
+      "file": "dist/assets/reference-models/landing-pad.glb",
+      "xy": [
+        -32,
+        56.5
+      ],
+      "footprint_max": 8.2,
+      "rotation_deg": 0,
+      "zone": "evacuation",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "PAD_GOLD",
+      "file": "dist/assets/reference-models/landing-pad.glb",
+      "xy": [
+        32,
+        56.5
+      ],
+      "footprint_max": 8.2,
+      "rotation_deg": 0,
+      "zone": "evacuation",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "BASE_CENTER",
+      "file": "dist/assets/reference-models/landing-base.glb",
+      "xy": [
+        0,
+        72
+      ],
+      "footprint_max": 16,
+      "rotation_deg": 0,
+      "zone": "evacuation",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "HAB_E",
+      "file": "dist/assets/reference-models/outpost-pod.glb",
+      "xy": [
+        53,
+        16
+      ],
+      "footprint_max": 7,
+      "rotation_deg": 0,
+      "zone": "abandoned",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "ROVER_BLUE",
+      "file": "dist/assets/models/science-rover-blue.glb",
+      "xy": [
+        -32,
+        -47
+      ],
+      "footprint_max": 1.9,
+      "rotation_deg": 90,
+      "zone": "rover",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "ROVER_GOLD",
+      "file": "dist/assets/models/science-rover-gold.glb",
+      "xy": [
+        32,
+        -47
+      ],
+      "footprint_max": 1.9,
+      "rotation_deg": 90,
+      "zone": "rover",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    },
+    {
+      "id": "LANDER_CENTER",
+      "file": "dist/assets/models/lander.glb",
+      "xy": [
+        0,
+        72
+      ],
+      "footprint_max": 7.5,
+      "rotation_deg": 0,
+      "zone": "evacuation",
+      "usage": "existing GLB, editable hierarchy, neutral clay material override only"
+    }
+  ],
+  "coordinate_mapping": "Blender(X,Y,Z) -> glTF/Three(X,Z,-Y)",
+  "source_engine_sha256": "c4c24e44a6f3cc3fa54c494dbfe7bf87ae38c587cb4709beba99db022d7a2c13",
+  "physical_board_unchanged": true
+}

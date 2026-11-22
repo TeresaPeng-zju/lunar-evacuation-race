@@ -3,9 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Moonfall · 硬件联调沙盒</title>
+    <title>Moonfall · 赛事控制台 / 硬件联调沙盒</title>
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="./sandbox/style.css" />
+    <script>
+      if (new URLSearchParams(location.search).has('floor'))
+        location.replace(
+          'floor.html' + (new URLSearchParams(location.search).has('debug') ? '?debug=1' : ''),
+        );
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three/three.module.js",
+          "three/addons/": "./vendor/three/addons/"
+        }
+      }
+    </script>
     <script type="module" src="./sandbox/app.js"></script>
   </head>
   <body>
@@ -14,15 +28,15 @@
         ><span class="brandmark">M</span> MOONFALL <small>月球撤离赛</small></a
       ><span class="badge" id="mode">连接中</span
       ><span id="connection" class="connection">本地服务连接中…</span
-      ><a href="./sandbox.html?floor=1" target="_blank">打开行驶屏 ↗</a
-      ><a href="./visual-lab.html">3D 样板 ↗</a>
+      ><a href="./floor.html" target="_blank">打开行驶屏 ↗</a
+      ><a href="./floor.html?debug=1" target="_blank">坐标检查 ↗</a>
     </header>
     <main>
       <section class="heading">
         <div>
-          <p class="eyebrow">HARDWARE SANDBOX / V0.3</p>
-          <h1>先让真实路线跑通。</h1>
-          <p>三段折返 · 两车独立换图 · 落石实际绕行</p>
+          <p class="eyebrow">MOONFALL / MISSION CONTROL</p>
+          <h1>月球撤离赛 · 赛事控制台</h1>
+          <p>完整基地全景 · 双车状态 · 比赛操作</p>
         </div>
         <div class="clock">
           <span id="status">待机</span><strong id="time">00:00.00</strong
@@ -34,26 +48,43 @@
       </div>
       <div class="workspace">
         <section class="scene-column">
-          <div class="panel map-panel">
+          <section class="panel panorama-panel">
             <div class="panel-head">
-              <h2>行驶屏坐标预览</h2>
-              <span>原点左上角 · cm</span
-              ><label><input type="checkbox" id="envelopes" checked /> 车体包络</label>
+              <h2>完整基地地图</h2>
+              <span>与行驶屏共用比赛状态</span>
             </div>
-            <div id="board-wrap">
-              <svg
-                id="board"
-                viewBox="0 0 59.8 33.6"
-                preserveAspectRatio="xMidYMid meet"
-                role="img"
-                aria-label="59.8×33.6 厘米双车道实体赛道"
-              ></svg>
+            <div id="control-arena">
+              <canvas id="control-map" aria-label="完整月球基地与两辆机器人"></canvas>
+              <div class="camera-tools">
+                <button data-view="overview">全图</button><button data-view="game">跟随</button
+                ><button data-view="top">俯视</button>
+              </div>
+              <div id="world-notice" role="status"></div>
             </div>
-            <div class="map-footer">
-              <span>0° →　90° ↓　−180° ←</span><span>实线：锁定路线　虚线：已准备分支</span
-              ><span>59.8 × 33.6 cm</span>
+          </section>
+          <details class="physical-inspector">
+            <summary>展开厘米坐标与车体包络检查</summary>
+            <div class="panel map-panel">
+              <div class="panel-head">
+                <h2>行驶屏坐标预览</h2>
+                <span>原点左上角 · cm</span
+                ><label><input type="checkbox" id="envelopes" checked /> 车体包络</label>
+              </div>
+              <div id="board-wrap">
+                <svg
+                  id="board"
+                  viewBox="0 0 59.8 33.6"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  aria-label="59.8×33.6 厘米双车道实体赛道"
+                ></svg>
+              </div>
+              <div class="map-footer">
+                <span>0° →　90° ↓　−180° ←</span><span>实线：锁定路线　虚线：已准备分支</span
+                ><span>59.8 × 33.6 cm</span>
+              </div>
             </div>
-          </div>
+          </details>
           <div id="rosters" class="rosters"></div>
           <div class="panel timeline">
             <div class="panel-head">

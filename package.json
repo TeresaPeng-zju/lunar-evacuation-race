@@ -25,7 +25,7 @@
   "devDependencies": {
     "prettier": "3.4.2"
   },
-  "description": "Moonfall 双人月球车竞速：三段实体赛道联调沙盒与独立 3D 视觉原型",
+  "description": "Moonfall 双人月球车竞速：Blender 废墟基地 3D 游戏与三段实体赛道联调沙盒",
   "engines": {
     "node": ">=20"
   }
