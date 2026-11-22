@@ -87,6 +87,10 @@ function connect() {
     lastReceived = performance.now();
     if (m.type === 'welcome') {
       if (!floor) {
+        const camera = $('camera-link');
+        const cameraURL = new URL(camera.href);
+        cameraURL.searchParams.set('gamePort', location.port || '4174');
+        camera.href = cameraURL.href;
         const url = new URL('/', location.href);
         url.port = m.phonePort ?? (Number(location.port) + 2);
         url.search = 'view=summary';
@@ -263,6 +267,7 @@ function render() {
     ? `暂停原因：${s.fault}`
     : s.winner
       ? `${s.winner === 'tie' ? '双车并列' : names[s.winner] + '率先'}抵达；车辆继续按路线安全停车。`
+      : s.adapter_mode === 'camera' ? '相机联调 · 显示实测位姿；选择开局路线可在相机画面预览。'
       : s.mode === 'simulation'
         ? '当前为理想运动模拟。屏面 59.8 × 33.6 cm，车体 6 × 6 cm；实车参数须由硬件端验证。'
         : `外部接口模式 · ${s.actuators_enabled ? '实体执行器' : '无电机适配器'} · ${s.parameters_verified ? '已载入实测参数' : '尚未载入实测参数，实体发车受限'}`;
@@ -319,10 +324,10 @@ function render() {
   }
   const enabled = {
     configure: s.status === 'idle' && s.handshake && s.clock,
-    start: s.status === 'idle' && s.configured,
+    start: s.status === 'idle' && s.configured && s.adapter_mode !== 'camera',
     pause: ['running', 'starting'].includes(s.status),
-    stop: !['stopped', 'stopping'].includes(s.status),
-    query: s.connected,
+    stop: s.adapter_mode !== 'camera' && !['stopped', 'stopping'].includes(s.status),
+    query: s.connected && s.adapter_mode !== 'camera',
     resume: s.status === 'paused' && s.snapshot_ok,
     reset: ['idle', 'stopped', 'finished'].includes(s.status),
   };

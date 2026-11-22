@@ -1,3 +1,4 @@
+import {CameraGameLink} from './race-link.mjs';
 import {calibrate,pose,driveTo,transform,homography,bendPoints,bendCommand,bendLength,arcPoints,arcLength,arcToGoal} from './navigation.mjs';
 const el=id=>document.getElementById(id);
 const requestedRover=new URLSearchParams(location.search).get('rover');
@@ -129,12 +130,49 @@ function followCurve(p){
   run.wheels={left,right,time:now};
   ws.send(JSON.stringify({left,right,time:Math.round(Date.now()-(now-stamp))}));
 }
+let raceSocket=null,raceLink=null,raceRoutes=[];
+const gamePort=new URLSearchParams(location.search).get('gamePort');
+if(gamePort && Number.isInteger(+gamePort) && +gamePort>0 && +gamePort<=65535)el('racePort').value=gamePort;
+function disconnectRace(){
+  raceSocket?.close();raceSocket=null;raceLink=null;raceRoutes=[];
+  el('raceConnect').textContent='连接游戏';el('raceState').textContent='已断开';
+}
+el('raceConnect').onclick=()=>{
+  if(raceSocket){disconnectRace();return}
+  if(!board){el('raceState').textContent='请先标定棋盘';return}
+  const port=num('racePort');
+  if(!Number.isInteger(port)||port<1||port>65535){el('raceState').textContent='请填写有效端口';return}
+  const socket=new WebSocket('ws://127.0.0.1:'+port+'/hardware');raceSocket=socket;
+  el('raceConnect').textContent='断开游戏';el('raceState').textContent='连接中';
+  const link=new CameraGameLink(m=>{if(socket.readyState===1)socket.send(JSON.stringify(m))},
+    routes=>{raceRoutes=routes;el('raceState').textContent=routes.length?'已接收路线 · 上报实测车体位姿':'已连接 · 等待游戏配置地图'},
+    'camera-'+crypto.randomUUID());
+  raceLink=link;
+  socket.onmessage=e=>{if(socket===raceSocket)link.receive(JSON.parse(e.data))};
+  socket.onclose=()=>{if(socket===raceSocket){disconnectRace();el('raceState').textContent='连接关闭，请核对外部硬件模式及接口占用'}};
+};
+function publishRaceFrame(items){
+  if(!raceLink)return;
+  const measurements={};
+  if(board && fresh()){
+    if(boardPose)measurements['rover-blue']=boardPose;
+    const f=num('goldF')/10,r=num('goldR')/10,yaw=num('goldYaw');
+    if([f,r,yaw].every(Number.isFinite)){
+      try{
+        const p=pose(items,{...board,zero:-yaw*Math.PI/180},1),c=Math.cos(p.heading),s=Math.sin(p.heading);
+        measurements['rover-gold']={x:p.x+f*c-r*s,y:p.y+f*s+r*c,heading:p.heading};
+      }catch{} // Missing or ambiguous tag is reported invalid.
+    }
+  }
+  raceLink.publish(stamp,measurements);
+}
 function guide(){
   el('boardUndo').disabled=!picking || !corners.length;
   el('boardGuide').textContent=picking?'请点棋盘'+cornerNames[corners.length]+'角':board?(board.inferred?'四码居中推算 · 白框为屏幕有效区':'棋盘已标定 · 左上为原点，X 向右，Y 向下'):'等待点选四角';
   el('stage').style.cursor=picking?'crosshair':'';
 }
 function resetBoard(){
+  if(raceSocket)disconnectRace();
   if(run?.curve)halt('标定已重置，已停止');
   origin=null;tagPose=null;path=bendPoints;el('curveCoords').textContent='';boardPose=null;trace=[];el('curveStats').textContent='';
   corners=[];board=null;picking=false;boardSize='';guide();
@@ -198,7 +236,9 @@ function updateBoard(items,overlay){
   }
   if(!board)return;
   drawPath(overlay,[...boardWorld,boardWorld[0]],'#ecf1f4');
-  drawPath(overlay,path,'#ffd77d');if(trace.length)drawPath(overlay,trace,'#43dfe7');
+  for(const route of raceRoutes)drawPath(overlay,route.waypoints_cm.map(p=>({x:p.x_cm,y:p.y_cm})),route.robot_id==='rover-blue'?'#56adff':'#f7c647');
+  if(!raceRoutes.length)drawPath(overlay,path,'#ffd77d');
+  if(trace.length)drawPath(overlay,trace,'#43dfe7');
   const out=el('boardPose');
   if(!fresh()){out.textContent='等待实时定位';return}
   const saved=localStorage.getItem('headingOffset:192.168.31.157');
@@ -245,7 +285,7 @@ function paint(overlay,a,b,color,width){
   overlay.append(line);
 }
 function update(items,time,overlay){
-  frame=items;stamp=time;updateBoard(items,overlay);
+  frame=items;stamp=time;updateBoard(items,overlay);publishRaceFrame(items);
   if(run?.curve || !cal)return;
   try{current=pose(items,cal)}catch(e){
     current=null;unavailable(e.message);

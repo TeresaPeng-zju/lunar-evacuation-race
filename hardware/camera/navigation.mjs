@@ -74,8 +74,8 @@ export function calibrate(items,width,height,headingOffsetDeg=null) {
   calibration.zero=headingOffsetDeg===null ? pose(items,calibration).heading : -headingOffsetDeg*Math.PI/180;
   return calibration;
 }
-export function pose(items,c) {
-  const points=one(items,0);
+export function pose(items,c,id=0) {
+  const points=one(items,id);
   for(let i=0;i<c.pixels.length;i++){
     const anchor=items.find(m=>m.label==='ID '+anchorIDs[i]+' · 36h11');
     if(!anchor)continue;

@@ -40,6 +40,9 @@ export class HardwareSimulator {
     this.activeTime = 0;
     this.faults = {};
     this.handoffs = new Map();
+    this.resetVehicles();
+  }
+  resetVehicles() {
     for (const id of ROBOTS)
       this.robots[id] = {
         id,
@@ -74,7 +77,11 @@ export class HardwareSimulator {
       this.results.clear();
       this.handoffs.clear();
       this.startCommand = null;
-      for (const r of Object.values(this.robots)) r.slots = {};
+      this.resetVehicles();
+      this.running = this.paused = false;
+      this.map = null;
+      this.activeTime = this.frame = 0;
+      this.faults = {};
       this.session = m.session_id;
       this.match = m.match_id;
       this.lastSeq = m.seq;

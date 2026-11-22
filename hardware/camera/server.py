@@ -53,7 +53,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if urlsplit(self.path).path == "/live-frame":
             return self.reply("application/json", json.dumps(native_camera.read()).encode())
-        if urlsplit(self.path).path in ("/navigation.mjs", "/pilot.mjs"):
+        if urlsplit(self.path).path in ("/navigation.mjs", "/pilot.mjs", "/race-link.mjs"):
             return self.reply("text/javascript; charset=utf-8", PAGE.with_name(urlsplit(self.path).path[1:]).read_bytes())
         if urlsplit(self.path).path != "/":
             return self.send_error(404)

@@ -126,7 +126,8 @@ server.on('upgrade', (req, socket, head) => {
     origin = req.headers.origin;
   if (
     !['/ui', '/hardware'].includes(path) ||
-    (origin && !['http://127.0.0.1:' + port, 'http://localhost:' + port].includes(origin))
+    (origin && !['http://127.0.0.1:' + port, 'http://localhost:' + port].includes(origin) &&
+      !(path === '/hardware' && origin === 'http://127.0.0.1:4182'))
   ) {
     socket.destroy();
     return;
@@ -155,7 +156,12 @@ sockets.on('connection', (ws, req) => {
     ws.on('message', (raw) => {
       try {
         advanceExternalClock();
-        game.receive(JSON.parse(raw.toString()));
+        const message = JSON.parse(raw.toString());
+        if (req.headers.origin === 'http://127.0.0.1:4182' && message.type === 'hardware.hello' &&
+            (message.payload?.adapter_mode !== 'camera' || message.payload?.actuators_enabled !== false)) {
+          ws.close(1008, 'Camera mode required'); return;
+        }
+        game.receive(message);
       } catch {
         game.pause('非法硬件消息');
       }

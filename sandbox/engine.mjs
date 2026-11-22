@@ -165,7 +165,9 @@ export class Sandbox {
     try {
       switch (m.type) {
         case 'hardware.hello': {
-          if (!CAPABILITIES.every((x) => p.capabilities?.includes(x)))
+          const required = p.adapter_mode === 'camera' && p.actuators_enabled === false
+            ? ['pose.frame','route.preview'] : CAPABILITIES;
+          if (!required.every((x) => p.capabilities?.includes(x)))
             throw Error('硬件缺少三段模式必需能力');
           if (p.board?.width_cm !== BOARD.width_cm || p.board?.height_cm !== BOARD.height_cm)
             throw Error('棋盘尺寸不匹配');
@@ -285,13 +287,21 @@ export class Sandbox {
       },
       { kind: 'config' },
     );
+    this.previewOpeningRoutes();
+  }
+  previewOpeningRoutes() {
+    if (this.hello?.adapter_mode === 'camera') this.emit('route.preview', {
+      routes: ROBOTS.map(id => routeFor(id, 's1_' + this.robots[id].opening)),
+    });
   }
   chooseOpening(id, choice) {
     if (this.status !== 'idle' || !['beacon', 'outer'].includes(choice) || !this.robots[id])
       throw Error('开局路线已锁定或无效');
     this.robots[id].opening = choice;
+    this.previewOpeningRoutes();
   }
   start() {
+    if (this.hello?.adapter_mode === 'camera') throw Error('相机实测联调：仅预览路线和定位');
     if (this.status !== 'idle' || !this.configured) throw Error('请先配置地图并等待硬件回执');
     this.assertReady();
     if (
@@ -609,7 +619,7 @@ export class Sandbox {
       if (q.calibration_id !== this.hello?.calibration_id || q.map_revision !== MAP_REVISION)
         throw Error('定位标定或地图版本不一致');
       if (r.last_capture_ms !== null && captured <= r.last_capture_ms) continue;
-      if (
+      if (this.hello?.adapter_mode !== 'camera' &&
         Math.min(
           q.x_cm,
           59.8 - q.x_cm,
@@ -1106,6 +1116,7 @@ export class Sandbox {
       clock: this.sync,
       configured: this.configured,
       actuators_enabled: this.hello?.actuators_enabled !== false,
+      adapter_mode: this.hello?.adapter_mode || null,
       calibration_id: this.hello?.calibration_id || null,
       parameters_verified: !!this.profile?.parameters_verified,
       fault: this.fault,
@@ -1125,6 +1136,7 @@ export class Sandbox {
         const { secret, plans, ...publicR } = r;
         return {
           ...publicR,
+          pose: {...r.pose, valid: r.pose.valid && this.link && this.now-r.last_pose_ms<=150},
           submitted: !!secret,
           plans: Object.fromEntries(
             Object.entries(plans).map(([s, j]) => [
