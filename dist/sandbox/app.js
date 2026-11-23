@@ -256,6 +256,46 @@ function draw() {
 function render() {
   if (document.querySelector('.physical-inspector')?.open) draw();
   const s = state;
+  if (s.tag_test && !floor) {
+    const t = s.tag_test;
+    $('mode').textContent = '标签中心 A→B 实车测试';
+    $('status').textContent = {
+      idle: '待配置',
+      ready: '可以发车',
+      running: '实车行驶',
+      stopping: '正在停车',
+      finished: '双车已停稳',
+      fault: '测试中止',
+    }[t.status];
+    $('connection').textContent = '本地直线控制 · USB 相机 / 双车 UDP';
+    $('notice').textContent = '从各车标签当前位置起步，朝场地右方行驶 5 cm，再走 5 cm。';
+    $('rosters').textContent = t.cars
+      .map(
+        (c) =>
+          c.name +
+          ' · 第 ' +
+          c.stage +
+          ' 段 · 前进 ' +
+          c.dx.toFixed(1) +
+          ' mm · 横偏 ' +
+          c.dy.toFixed(1) +
+          ' mm' +
+          (c.parked ? ' · PARKED' : ''),
+      )
+      .join('　');
+    $('events').innerText = t.events.join('\n');
+    $('endpoint-only').checked = true;
+    $('endpoint-only').disabled = true;
+    for (const b of document.querySelectorAll(
+      '[data-action],[data-choice],[data-rock],[data-inject]',
+    ))
+      b.disabled = true;
+    $('configure').disabled = !controller || ['running', 'stopping'].includes(t.status);
+    $('start').disabled = !controller || t.status !== 'ready';
+    $('stop').disabled = !controller || t.status !== 'running';
+    $('simulation-tools').hidden = true;
+    return;
+  }
   $('time').textContent = time(s.elapsed_ms);
   $('status').textContent = labels[s.status] || s.status;
   $('mode').textContent = s.mode === 'simulation' ? '内置模拟器' : '外部硬件接口';

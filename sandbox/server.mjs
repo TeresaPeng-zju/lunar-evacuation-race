@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { TagStraight } from '../hardware/executor/tag-straight.mjs';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve, extname, sep } from 'node:path';
@@ -30,6 +31,9 @@ try {
 }
 const root = resolve(fileURLToPath(new URL('../dist/', import.meta.url)));
 const { port, host, mode } = options;
+const tagTest =
+  mode === 'hardware' && process.env.MOONFALL_TAG_STRAIGHT === '1' ? new TagStraight() : null;
+const snapshot = () => ({ ...game.state(), tag_test: tagTest?.state });
 const phonePort = Number(process.env.MOONFALL_PHONE_PORT || port + 2);
 let phoneGateway = null;
 let hardware = null,
@@ -88,7 +92,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     if (url.pathname === '/api/state') {
-      json(res, game.state());
+      json(res, snapshot());
       return;
     }
     if (url.pathname === '/api/map') {
@@ -147,7 +151,7 @@ sockets.on('connection', (ws, req) => {
   });
   const url = new URL(req.url, 'http://localhost');
   if (url.pathname === '/hardware') {
-    if (mode !== 'hardware' || hardware) {
+    if (tagTest || mode !== 'hardware' || hardware) {
       ws.close(1008, 'Hardware slot unavailable');
       return;
     }
@@ -188,13 +192,21 @@ sockets.on('connection', (ws, req) => {
     if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(value));
   };
   send({ type: 'welcome', controller: ws.isController, mode, phonePort });
-  send({ type: 'state', ...game.state(), speed });
-  ws.on('message', (raw) => {
+  send({ type: 'state', ...snapshot(), speed });
+  ws.on('message', async (raw) => {
     try {
       advanceExternalClock();
       if (!ws.isController) throw Error('当前窗口只读；请使用主控制窗口');
       const m = JSON.parse(raw.toString()),
         p = m.payload || {};
+      if (tagTest) {
+        if (m.action === 'configure' && p.endpoint_only) await tagTest.configure();
+        else if (m.action === 'start') tagTest.start();
+        else if (['stop', 'pause'].includes(m.action)) tagTest.stop('主控停车');
+        else throw Error('此控制台仅支持标签中心直线测试');
+        send({ type: 'action.result', ok: true, action: m.action });
+        return;
+      }
       switch (m.action) {
         case 'configure':
           game.configure(p.endpoint_only);
@@ -265,6 +277,7 @@ sockets.on('connection', (ws, req) => {
   });
   ws.on('close', () => {
     if (controller === ws) {
+      tagTest?.stop('主控断开');
       controller = null;
       game.pause('主控制窗口断开，等待工作人员核对');
       drain();
@@ -300,7 +313,7 @@ const timer = setInterval(() => {
   }
   if (now - lastBroadcast >= 50) {
     lastBroadcast = now;
-    const msg = JSON.stringify({ type: 'state', ...game.state(), speed });
+    const msg = JSON.stringify({ type: 'state', ...snapshot(), speed });
     for (const ws of sockets.clients)
       if (ws.isUI && ws.readyState === WebSocket.OPEN && ws.bufferedAmount < 500000) ws.send(msg);
   }
@@ -339,6 +352,7 @@ Ctrl+C 停止服务
 `),
 );
 function shutdown() {
+  tagTest?.stop('服务关闭');
   phoneGateway?.server.close();
   phoneGateway?.server.closeAllConnections();
   game.stop();
