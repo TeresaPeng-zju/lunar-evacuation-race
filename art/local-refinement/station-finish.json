@@ -1,0 +1,10 @@
+{
+  "parts": 34,
+  "ao_resolution": [
+    1024,
+    1024
+  ],
+  "layout_unchanged": true,
+  "material_fix": "micro-normal scale and glTF occlusion atlas",
+  "model_fix": "flat roof straps, recessed thermal cassette, pressure-door surround, coherent glazing"
+}

@@ -1,3 +1,4 @@
+import { InstrumentLabels } from './instrument-labels.js';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -5,18 +6,30 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
+import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ROUTES, sample } from './engine.js';
 import { mapPoint, heading, elevation, routeActive, smooth } from './ruins-map.js';
 import { anchor, roadState } from './display/map.js';
+import { applyLunarLook } from './lunar-look.js';
+import { applyRoadFinish } from './lunar-surface.js';
 const colors = [0x77c6e0, 0xe8b969],
   names = ['blue', 'gold'];
 const vec = (p) => new THREE.Vector3(p.x, p.y, p.z);
+const feedbackWhite = new THREE.Color(0xffffff);
 export class LunarWorld {
   constructor(canvas, options = {}) {
     this.physical = options.physical === true;
+    this.look = options.look || 'unified';
+    this.art = options.art || 'production';
+    // Opt-in art review only. Gameplay and floor rendering use the existing scene.
+    this.localRefinement = options.localRefinement === true && this.physical;
     this.canvas = canvas;
+    this.instrumentLabels = options.instrumentHud
+      ? new InstrumentLabels(canvas.parentElement)
+      : null;
+    this.routePulses = [null, null];
     this.loaded = false;
     this.mode = 'game';
     this.roads = [];
@@ -107,6 +120,8 @@ export class LunarWorld {
     this.composer.addPass(this.ao);
     this.bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.12, 0.4, 1.5);
     this.composer.addPass(this.bloom);
+    // Canvas MSAA does not cover the composer render target. Resolve thin bevels here.
+    this.composer.addPass(new SMAAPass());
     this.composer.addPass(new OutputPass());
     this.hud = new THREE.Scene();
     this.hudCamera = new THREE.OrthographicCamera(-4, 4, 3, -3, 0.1, 30);
@@ -164,7 +179,13 @@ export class LunarWorld {
   async load() {
     const [staticGLB, dynamic, blue, gold, meteor, map] = await Promise.all([
       ...[
-        this.physical ? 'dual-screen/static-scene' : 'ruins-game/static-scene',
+        this.localRefinement
+          ? 'local-refinement/static-scene'
+          : this.art === 'production'
+            ? `production/${this.physical ? 'physical' : 'virtual'}-scene`
+            : this.physical
+              ? 'dual-screen/static-scene'
+              : 'ruins-game/static-scene',
         'ruins-game/interactive',
         'models/science-rover-blue',
         'models/science-rover-gold',
@@ -296,6 +317,8 @@ export class LunarWorld {
     this.dust.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     this.dust.frustumCulled = false;
     this.scene.add(this.dust);
+    if (this.look === 'unified') applyLunarLook(this);
+    if (this.art === 'production' && !this.localRefinement) applyRoadFinish(this);
     this.loaded = true;
     this.status.remove();
     this.setView(this.physical ? 'overview' : 'game');
@@ -412,23 +435,38 @@ export class LunarWorld {
         dx = b[0] - a[0],
         dy = b[1] - a[1],
         l = Math.hypot(dx, dy);
-      for (const sign of [-1, 1])
-        v.push(
-          p[i][0] - (((dy / l) * width) / 2) * sign,
-          elevation(...p[i]) + offset,
-          -p[i][1] - (((dx / l) * width) / 2) * sign,
-        );
+      for (const sign of [-1, 1]) {
+        const x = p[i][0] - (((dy / l) * width) / 2) * sign;
+        const y = p[i][1] + (((dx / l) * width) / 2) * sign;
+        // Keep the original vertex positions, including the authored road height.
+        v.push(x, elevation(...p[i]) + offset, -y);
+      }
       if (i < p.length - 1) ix.push(2 * i, 2 * i + 2, 2 * i + 1, 2 * i + 1, 2 * i + 2, 2 * i + 3);
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(v, 3));
+    if (this.look === 'unified') {
+      // Tight ribbon joins can invert a triangle's winding. Keep its exact
+      // footprint but orient every face upward before averaging vertex normals.
+      for (let i = 0; i < ix.length; i += 3) {
+        const a = ix[i] * 3,
+          b = ix[i + 1] * 3,
+          c = ix[i + 2] * 3;
+        const up = (v[b + 2] - v[a + 2]) * (v[c] - v[a]) - (v[b] - v[a]) * (v[c + 2] - v[a + 2]);
+        if (up < 0) [ix[i + 1], ix[i + 2]] = [ix[i + 2], ix[i + 1]];
+      }
+    }
     g.setIndex(ix);
     g.computeVertexNormals();
     return new THREE.Mesh(g, material);
   }
+  pulseRoute(player, prefix) {
+    if (!this.instrumentLabels || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    this.routePulses[player] = { prefix, at: performance.now() };
+  }
   addLabel(text, point, cls) {
     const el = document.createElement('span');
-    el.className = 'world-label ' + cls;
+    el.className = 'world-label ' + cls + (this.instrumentLabels ? ' instrument-label' : '');
     el.textContent = text;
     this.canvas.parentElement.append(el);
     this.labels.push({ el, point });
@@ -458,6 +496,22 @@ export class LunarWorld {
     this.mode = mode;
     const a = (this.width || 1600) / (this.height || 900);
     this.camera.zoom = 1;
+    if (mode === 'station' && this.stationCamera) {
+      const c = this.stationCamera;
+      const convert = ([x, y, z]) => new THREE.Vector3(x, z, -y);
+      this.camera.up.set(0, 1, 0);
+      this.camera.position.copy(convert(c.position_blender));
+      this.controls.target.copy(convert(c.target_blender));
+      this.camera.left = -c.horizontal_span / 2;
+      this.camera.right = c.horizontal_span / 2;
+      this.camera.top = c.horizontal_span / (2 * a);
+      this.camera.bottom = -this.camera.top;
+      this.camera.lookAt(this.controls.target);
+      this.camera.updateProjectionMatrix();
+      this.controls.update();
+      this.modeUI();
+      return;
+    }
     const target = new THREE.Vector3(
       0,
       3,
@@ -487,6 +541,7 @@ export class LunarWorld {
     this.modeUI();
   }
   resetEffects() {
+    this.routePulses = [null, null];
     this.lastTime = 0;
     this.frames = [];
     for (const e of this.effects) {
@@ -598,6 +653,16 @@ export class LunarWorld {
       if (this.physical) {
         const state = roadState(e, race.players[e.player_id], race);
         o.visible = state.visible && state.on;
+        if (this.instrumentLabels) {
+          const pulse = this.routePulses[e.player_id];
+          const age = pulse ? (performance.now() - pulse.at) / 950 : 2;
+          const amount =
+            age >= 0 && age < 1 && e.routes.some((k) => k.startsWith(pulse.prefix))
+              ? Math.sin(Math.PI * age)
+              : 0;
+          o.material.color.setHex(colors[e.player_id]).lerp(feedbackWhite, amount * 0.65);
+          o.material.opacity = 0.75 + amount * 0.25;
+        }
       } else o.visible = routeActive(p, e.key, e.kind, race);
     }
     const shots = [];
@@ -689,14 +754,24 @@ export class LunarWorld {
     this.renderer.render(this.hud, this.hudCamera);
     this.renderer.autoClear = true;
     this.camera.position.y -= shake;
-    for (const label of this.labels) {
+    const projected = this.labels.map((label) => {
       const pos = (typeof label.point === 'function' ? label.point() : label.point)
         .clone()
         .project(this.camera);
-      label.el.hidden = Math.abs(pos.x) > 0.98 || Math.abs(pos.y) > 0.94 || pos.z > 1;
-      label.el.style.left = (pos.x + 1) * 0.5 * this.width + 'px';
-      label.el.style.top = (1 - pos.y) * 0.5 * this.height + 'px';
-    }
+      return {
+        label,
+        x: (pos.x + 1) * 0.5 * this.width,
+        y: (1 - pos.y) * 0.5 * this.height,
+        visible: Math.abs(pos.x) < 1 && Math.abs(pos.y) < 1 && pos.z >= -1 && pos.z <= 1,
+      };
+    });
+    if (this.instrumentLabels) this.instrumentLabels.layout(projected, this.width, this.height);
+    else
+      for (const { label, x, y, visible } of projected) {
+        label.el.hidden = !visible;
+        label.el.style.left = x + 'px';
+        label.el.style.top = y + 'px';
+      }
     this.canvas.dataset.phase = race.status;
     this.canvas.dataset.aftershock = race.aftershock || 'pending';
   }
@@ -706,7 +781,13 @@ export class LunarWorld {
     return {
       ready: this.loaded,
       mode: this.mode,
+      routePulses: this.routePulses.map((p) => p && { ...p, age_ms: performance.now() - p.at }),
       renderer: 'Blender GLB + Three.js',
+      look: this.look,
+      artRevision:
+        this.art === 'production' && !this.localRefinement
+          ? 'moonfall-unified-2026-11-24'
+          : 'historical-review',
       source: this.physical ? 'authoritative-hardware-state' : 'virtual-race',
       drawCalls: this.stats?.calls,
       triangles: this.stats?.triangles,

@@ -10,3 +10,6 @@ work/
 config/*.local.json
 sandbox/hardware-profile.local.json
 .playwright-cli/
+
+# Blender recipe Python cache
+__pycache__/

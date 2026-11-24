@@ -31,10 +31,15 @@ export class FloorArena {
   }
   async load() {
     try {
-      const data = await Promise.all(
-        [1, 2, 3].map((i) => load(`assets/floor-arena/stage-${i}.png`)),
-      );
+      const [data, manifest] = await Promise.all([
+        Promise.all([1, 2, 3].map((i) => load(`assets/floor-arena/stage-${i}.png`))),
+        fetch('assets/floor-arena/render-manifest.json').then((r) => {
+          if (!r.ok) throw Error('行驶屏美术清单加载失败');
+          return r.json();
+        }),
+      ]);
       this.plates = data;
+      this.artRevision = manifest.art_revision || 'legacy';
       this.rock = await load('assets/meteorite.png');
       this.loaded = true;
     } catch (e) {
@@ -57,6 +62,17 @@ export class FloorArena {
     c.setLineDash(dash);
     c.stroke(path(route));
     c.setLineDash([]);
+  }
+  flow(route, color, elapsed) {
+    // The pulse follows the same Path2D in waypoint order, including reversed stage 2.
+    // No position/width changes to the canonical line; markers are drawn afterward.
+    const c = this.ctx;
+    c.save();
+    c.lineDashOffset = -((elapsed / 1000) * 2.2) % 5.8;
+    this.stroke(route, 0.21, color + '35', [0.7, 5.1]);
+    this.stroke(route, 0.075, color, [0.7, 5.1]);
+    this.stroke(route, 0.035, '#edfaff', [0.24, 5.56]);
+    c.restore();
   }
   ring(x, y, r, color, width = 0.06) {
     const c = this.ctx;
@@ -118,7 +134,9 @@ export class FloorArena {
       for (const key of variants(r, state))
         this.stroke(routeFor(r.robot_id, key), 0.055, 'rgba(197,205,207,.28)', [0.12, 0.55]);
       const route = currentRoute(r);
-      this.stroke(route, 0.105, color);
+      this.stroke(route, 0.105, color + 'aa');
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches)
+        this.flow(route, color, state.elapsed_ms);
       // Short tire impressions are limited to straight sections; offsetting tight
       // centerline arcs would draw loops across the inside of a 6 cm vehicle turn.
       for (let s = 1; s < route.length_cm - 1; s += 0.42) {
@@ -159,8 +177,24 @@ export class FloorArena {
         top + 1.05,
         `${i ? '02 / 黄方' : '01 / 蓝方'}    ${['', '科研前哨 · 信标回廊', '中央遗址 · 月震走廊', '撤离港 · 最终归航'][r.stage_id]}`,
         color,
-        0.34,
+        0.4,
       );
+      // Use the existing non-driving header strip, never paint over a trigger/route.
+      const seconds = Math.floor(state.elapsed_ms / 1000);
+      const clock = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+      const result =
+        state.winner === 'tie' ? '并列抵达' : state.winner === r.robot_id ? '率先抵达' : '已抵达';
+      const status =
+        state.status === 'finished'
+          ? result
+          : state.status === 'paused'
+            ? '已暂停'
+            : r.finished_ms !== null
+              ? '停靠中'
+              : state.status === 'running'
+                ? '比赛中'
+                : '待发车';
+      this.label(43, top + 1.05, `${clock} · ${status}`, color, 0.4);
       if (r.stage_id === 1) {
         c.strokeStyle = r.beacon ? color : '#79858b';
         c.lineWidth = 0.065;
@@ -317,6 +351,9 @@ export class FloorArena {
       beacons: state.robots.map((r) => r.beacon),
       gates: state.robots.map((r) => r.gate),
       aftershock: state.aftershock,
+      status: state.status,
+      winner: state.winner,
+      poses: state.robots.map((r) => ({ ...r.pose })),
     };
   }
   fissure(x, y, length, width, seed, color) {
@@ -390,6 +427,7 @@ export class FloorArena {
     return {
       ready: this.loaded,
       renderer: 'Blender orthographic plates + centimeter dynamic overlay',
+      artRevision: this.artRevision,
       board: BOARD,
       debug: this.debug,
       renderSize: [this.canvas.width, this.canvas.height],
@@ -401,6 +439,7 @@ export class FloorArena {
         'lunar-terrain',
         'existing-glb-facilities',
         'canonical-roads',
+        'route-flow',
         'beacon-gate',
         'quake',
         'rock',

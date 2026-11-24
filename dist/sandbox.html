@@ -3,9 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Moonfall · 赛事控制台 / 硬件联调沙盒</title>
+    <title>Moonfall · 月球撤离赛</title>
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="./sandbox/style.css" />
+    <link rel="stylesheet" href="./sandbox/instrument.css" />
     <script>
       if (new URLSearchParams(location.search).has('floor'))
         location.replace(
@@ -22,27 +23,21 @@
     </script>
     <script type="module" src="./sandbox/app.js"></script>
   </head>
-  <body>
+  <body class="exhibition">
     <header class="top">
       <a class="brand" href="./sandbox.html"
         ><span class="brandmark">M</span> MOONFALL <small>月球撤离赛</small></a
-      ><span class="badge" id="mode">连接中</span
+      >
+      <div class="clock">
+        <span id="status">待机</span><strong id="time">00:00.00</strong
+        ><small>比赛时钟 · <span id="speed-label">1×</span></small>
+      </div>
+      <span class="badge" id="mode">连接中</span
       ><span id="connection" class="connection">本地服务连接中…</span
       ><a href="./floor.html" target="_blank">打开行驶屏 ↗</a
       ><a href="./floor.html?debug=1" target="_blank">坐标检查 ↗</a>
     </header>
     <main>
-      <section class="heading">
-        <div>
-          <p class="eyebrow">MOONFALL / MISSION CONTROL</p>
-          <h1>月球撤离赛 · 赛事控制台</h1>
-          <p>完整基地全景 · 双车状态 · 比赛操作</p>
-        </div>
-        <div class="clock">
-          <span id="status">待机</span><strong id="time">00:00.00</strong
-          ><small>比赛时钟 · <span id="speed-label">1×</span></small>
-        </div>
-      </section>
       <div id="notice" class="notice">
         当前为理想运动模拟。屏面 59.8 × 33.6 cm，车体 6 × 6 cm；实车参数须由硬件端验证。
       </div>
@@ -107,6 +102,8 @@
               <h2>联调控制</h2>
               <span id="authority">主控</span>
             </div>
+            <button class="quick-start-primary" data-quick-start>▶ 一键开局</button>
+            <p class="quick-start-hint">自动配置并发车，成功后返回赛场</p>
             <ol class="steps">
               <li>配置地图，核对标定与双车定位</li>
               <li>选择开局路线，启动三段比赛</li>
@@ -126,7 +123,7 @@
             </div>
             <button class="wide subtle" data-action="reset" id="reset">重置新一局</button>
           </section>
-          <section class="panel choices">
+          <section class="panel choices" id="venue-choices">
             <div class="panel-head">
               <h2>玩家操作</h2>
               <span id="choice-window">等待月震</span>
@@ -179,6 +176,49 @@
         </aside>
       </div>
     </main>
+    <div class="venue-hud" aria-label="比赛信息">
+      <time id="venue-time" hidden>00:00</time>
+      <div id="venue-phase" hidden></div>
+      <section id="race-announcement" aria-live="polite" hidden>
+        <strong id="announcement-title"></strong><span id="announcement-detail"></span>
+      </section>
+      <section id="venue-result" aria-live="polite" hidden>
+        <span class="result-eyebrow">撤离任务完成</span>
+        <h1 id="result-title"></h1>
+        <p id="result-detail"></p>
+        <p id="result-times"></p>
+      </section>
+    </div>
+    <nav class="venue-tools" aria-label="展示设置">
+      <button class="quick-start-primary" data-quick-start>▶ 一键开局</button>
+      <button
+        id="venue-fullscreen"
+        class="venue-icon"
+        data-tooltip="全屏"
+        title="全屏 / 退出全屏（F）"
+        aria-label="全屏 / 退出全屏"
+      >
+        ⛶
+      </button>
+      <button
+        id="admin-toggle"
+        class="venue-icon"
+        data-tooltip="管理设置"
+        title="管理设置（A）"
+        aria-label="管理设置"
+        aria-pressed="false"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16M9 4v6M15 14v6" /></svg>
+      </button>
+      <a
+        class="venue-floor-link"
+        href="./floor.html"
+        target="_blank"
+        rel="noopener"
+        title="在新窗口打开行驶屏"
+        >行驶屏 ↗</a
+      >
+    </nav>
     <div id="toast" role="status" aria-live="polite"></div>
     <div class="floor-tools">
       <button id="fullscreen">进入全屏</button><span id="floor-status">只读行驶屏 · 等待状态</span>

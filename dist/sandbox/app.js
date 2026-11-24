@@ -1,3 +1,4 @@
+import { createExhibition } from './exhibition.js';
 import { ROBOTS, CY, ENVELOPE, routeFor, rockSite } from './geometry.js';
 import { LunarWorld } from '../ruins-world.js';
 import { toView } from '../display/map.js';
@@ -8,13 +9,21 @@ let world = null,
   view = null,
   worldError = null;
 try {
-  if (!floor) world = new LunarWorld($('control-map'), { physical: true });
+  if (!floor) world = new LunarWorld($('control-map'), { physical: true, instrumentHud: true });
 } catch (e) {
   worldError = '3D 地图不可用：' + e.message;
 }
-world?.ready.catch((e) => {
-  worldError = e.message;
-});
+world?.ready
+  .then(async () => {
+    if (new URLSearchParams(location.search).get('inspect') !== 'station') return;
+    const response = await fetch('./assets/production/station-camera.json');
+    if (!response.ok) throw Error('科研站镜头配置不可用');
+    world.stationCamera = await response.json();
+    world.setView('station');
+  })
+  .catch((e) => {
+    worldError = e.message;
+  });
 for (const b of document.querySelectorAll('[data-view]'))
   b.onclick = () => world?.setView(b.dataset.view);
 function frame() {
@@ -27,8 +36,15 @@ function frame() {
   }
   if (!floor) {
     const stale = lastReceived && performance.now() - lastReceived > 1000;
-    $('world-notice').textContent =
-      worldError || (stale ? '连接中断 · 保留最后位置' : state?.fault || '');
+    $('world-notice').textContent = document.body.classList.contains('exhibition')
+      ? worldError
+        ? '场景暂不可用 · 请联系工作人员'
+        : stale
+          ? '连接恢复中 · 请稍候'
+          : state?.fault
+            ? '比赛暂停 · 请等待工作人员'
+            : ''
+      : worldError || (stale ? '连接中断 · 保留最后位置' : state?.fault || '');
   }
   requestAnimationFrame(frame);
 }
@@ -58,6 +74,10 @@ let state = null,
   lastEvents = '',
   lastReceived = 0,
   reconnect;
+const exhibition = createExhibition({
+  getState: () => state,
+  onRouteFeedback: (id, prefix) => world?.pulseRoute(ROBOTS.indexOf(id), prefix),
+});
 const esc = (s) =>
   String(s ?? '').replace(
     /[&<>"']/g,
@@ -71,12 +91,58 @@ function notify(text) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => $('toast').classList.remove('visible'), 4200);
 }
+const pendingActions = []; // Presentation acknowledgements only; protocol is unchanged.
 function send(action, payload = {}) {
   if (ws?.readyState !== WebSocket.OPEN) {
     notify('本地服务未连接');
     return;
   }
+  pendingActions.push({ action, payload, match: state?.match_id });
   ws.send(JSON.stringify({ action, payload }));
+}
+let quickStart = null;
+function cancelQuickStart(message) {
+  if (quickStart) clearTimeout(quickStart.timer);
+  quickStart = null;
+  if (message) notify(message);
+}
+function advanceQuickStart() {
+  if (!quickStart) return;
+  if (!controller || state.match_id !== quickStart.match || state.fault || !state.connected) {
+    cancelQuickStart('开局已中止，请检查管理员面板中的状态');
+    return;
+  }
+  if (state.status === 'running' && quickStart.phase === 'starting') {
+    cancelQuickStart();
+    exhibition.showRace();
+  } else if (!['idle', 'starting'].includes(state.status)) {
+    cancelQuickStart('开局已中止，车辆状态需要核对');
+  } else if (state.configured && quickStart.phase === 'configuring') {
+    quickStart.phase = 'starting';
+    send('start');
+  }
+}
+for (const button of document.querySelectorAll('[data-quick-start]')) {
+  button.onclick = () => {
+    if (
+      quickStart ||
+      !controller ||
+      !state ||
+      state.status !== 'idle' ||
+      ws?.readyState !== WebSocket.OPEN
+    )
+      return;
+    quickStart = {
+      match: state.match_id,
+      phase: state.configured ? 'starting' : 'configuring',
+      timer: setTimeout(() => {
+        cancelQuickStart('开局准备超时，请检查硬件回执；不会自动重试');
+        render();
+      }, 12000),
+    };
+    send(state.configured ? 'start' : 'configure');
+    render();
+  };
 }
 function connect() {
   ws = new WebSocket(
@@ -96,10 +162,22 @@ function connect() {
       } catch (e) {
         worldError = e.message;
       }
+      advanceQuickStart();
       render();
-    } else if (m.type === 'action.result' && !m.ok) notify(m.error);
+    } else if (m.type === 'action.result') {
+      const sent = pendingActions.shift();
+      if (!m.ok) {
+        cancelQuickStart();
+        notify(m.error);
+      } else if (sent?.action === 'opening' && m.action === 'opening') {
+        exhibition.confirmOpening(sent.payload.robot_id, sent.payload.choice, sent.match);
+      }
+      if (state) render();
+    }
   };
   ws.onclose = () => {
+    pendingActions.length = 0;
+    cancelQuickStart();
     controller = false;
     $('connection').textContent = '服务已断开 · 不会自动恢复运动';
     $('connection').classList.remove('live');
@@ -111,29 +189,32 @@ function connect() {
 }
 $('players').innerHTML = ROBOTS.map(
   (id, i) =>
-    `<div class="player ${i ? 'gold' : ''}"><h3>${names[id]} / ROVER 0${i + 1}</h3><div class="route-choice">${[
+    `<div data-player="${id}" class="player ${i ? 'gold' : ''}"><div class="venue-player-heading"><strong class="venue-player-label"><span class="instrument-number">0${i + 1} /</span> ${names[id]}</strong><span class="venue-player-hint"></span></div><h3>${names[id]} / ROVER 0${i + 1}</h3><div class="route-choice opening-routes">${[
       ['beacon', '信标回廊'],
       ['outer', '废弃栈道'],
     ]
       .map(
         ([choice, label]) =>
-          `<button data-choice="${choice}" data-kind="opening" data-robot="${id}">${label}</button>`,
+          `<button data-option="${['beacon', 'safe'].includes(choice) ? 'A' : 'B'}" data-choice="${choice}" data-kind="opening" data-robot="${id}">${label}</button>`,
       )
-      .join('')}</div><div class="route-choice">${[
+      .join('')}</div><div class="route-choice final-routes">${[
       ['safe', '归航环路'],
       ['risk', '碎隙捷径'],
     ]
       .map(
         ([choice, label]) =>
-          `<button data-choice="${choice}" data-kind="final" data-robot="${id}">${label}</button>`,
+          `<button data-option="${['beacon', 'safe'].includes(choice) ? 'A' : 'B'}" data-choice="${choice}" data-kind="final" data-robot="${id}">${label}</button>`,
       )
       .join(
         '',
       )}</div><button class="rock-btn" data-rock="${id}">向对手投落石</button><p class="rock-note" id="rock-${id}"></p></div>`,
 ).join('');
-document
-  .querySelectorAll('[data-action]')
-  .forEach((b) => b.addEventListener('click', () => send(b.dataset.action)));
+document.querySelectorAll('[data-action]').forEach((b) =>
+  b.addEventListener('click', () => {
+    cancelQuickStart();
+    send(b.dataset.action);
+  }),
+);
 document
   .querySelectorAll('[data-choice]')
   .forEach((b) =>
@@ -237,13 +318,16 @@ function draw() {
 function render() {
   if (document.querySelector('.physical-inspector')?.open) draw();
   const s = state;
+  exhibition.update(s, controller);
   $('time').textContent = time(s.elapsed_ms);
   $('status').textContent = labels[s.status] || s.status;
   $('mode').textContent = s.mode === 'simulation' ? '内置模拟器' : '外部硬件接口';
   $('speed-label').textContent = `${s.speed}×`;
   $('connection').textContent = s.connected
     ? s.handshake
-      ? '硬件握手完成 · 本地服务在线'
+      ? s.mode === 'simulation'
+        ? '模拟器在线 · 未接入实车'
+        : '硬件握手完成 · 本地服务在线'
       : '等待硬件握手'
     : '等待外部硬件连接';
   $('connection').classList.toggle('live', s.connected && s.handshake);
@@ -254,7 +338,7 @@ function render() {
   $('notice').textContent = s.fault
     ? `暂停原因：${s.fault}`
     : s.winner
-      ? `${s.winner === 'tie' ? '双车并列' : names[s.winner] + '率先'}抵达；车辆继续按路线安全停车。`
+      ? `${s.winner === 'tie' ? '双车并列' : names[s.winner] + '率先'}抵达；${s.status === 'finished' ? '双车已停稳，本局完成。' : '车辆继续按路线安全停车。'}`
       : s.mode === 'simulation'
         ? '当前为理想运动模拟。屏面 59.8 × 33.6 cm，车体 6 × 6 cm；实车参数须由硬件端验证。'
         : `外部接口模式 · ${s.actuators_enabled ? '实体执行器' : '无电机适配器'} · ${s.parameters_verified ? '已载入实测参数' : '尚未载入实测参数，实体发车受限'}`;
@@ -288,6 +372,7 @@ function render() {
       'selected',
       b.dataset.choice === (b.dataset.kind === 'opening' ? r.opening : r.final),
     );
+    b.setAttribute('aria-pressed', String(b.classList.contains('selected')));
   }
   for (const b of document.querySelectorAll('[data-rock]')) {
     const r = s.robots.find((r) => r.robot_id === b.dataset.rock);
@@ -308,6 +393,27 @@ function render() {
           : s.status === 'running'
             ? '暂无安全落点 · 卡牌保留'
             : '开赛后可投放';
+  }
+  for (const button of document.querySelectorAll('[data-quick-start]')) {
+    button.disabled =
+      !!quickStart ||
+      !controller ||
+      s.status !== 'idle' ||
+      !s.connected ||
+      !s.handshake ||
+      !s.clock;
+    button.textContent = quickStart
+      ? quickStart.phase === 'configuring'
+        ? '正在配置…'
+        : '正在发车…'
+      : '▶ 一键开局';
+    button.title = !controller
+      ? '请使用主控制窗口'
+      : s.status !== 'idle'
+        ? '请先完成本局或停止后重置'
+        : !s.handshake
+          ? '等待连接与握手'
+          : '自动配置，等待回执后发车';
   }
   const enabled = {
     configure: s.status === 'idle' && s.handshake && s.clock,

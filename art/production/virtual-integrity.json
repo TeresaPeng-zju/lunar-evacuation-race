@@ -1,0 +1,75 @@
+{
+  "kind": "virtual",
+  "buildings": [
+    {
+      "name": "LAB_W",
+      "footprint_before": [
+        [
+          -40.52365493774414,
+          -20.599998474121094,
+          3.4000000953674316
+        ],
+        [
+          -33.47634506225586,
+          -13.399999618530273,
+          7.180789947509766
+        ]
+      ],
+      "treatment": "approved pressure-hull family"
+    },
+    {
+      "name": "HAB_E",
+      "footprint_before": [
+        [
+          49.5,
+          12.923532485961914,
+          3.200000047683716
+        ],
+        [
+          56.5,
+          19.076467514038086,
+          4.952404975891113
+        ]
+      ],
+      "treatment": "approved pressure-hull family"
+    },
+    {
+      "name": "CAMP_W",
+      "footprint_before": [
+        [
+          -60.0,
+          14.201860427856445,
+          3.0999999046325684
+        ],
+        [
+          -52.0,
+          21.798139572143555,
+          5.79146146774292
+        ]
+      ],
+      "treatment": "approved pressure-hull family"
+    },
+    {
+      "name": "SUPPLY_W",
+      "footprint_before": [
+        [
+          -39.85528564453125,
+          -33.0,
+          3.4000000953674316
+        ],
+        [
+          -34.144718170166016,
+          -27.0,
+          5.972106456756592
+        ]
+      ],
+      "treatment": "coherent service core"
+    }
+  ],
+  "terrain_vertices_sharpened": 316523,
+  "protected_terrain_vertices": 17227,
+  "rock_meshes_refined": 48,
+  "protected_objects": 74,
+  "all_root_transforms_unchanged": true,
+  "all_road_gate_fault_geometry_unchanged": true
+}

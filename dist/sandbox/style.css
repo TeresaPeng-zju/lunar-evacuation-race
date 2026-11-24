@@ -812,6 +812,118 @@ main {
     padding: 12px;
   }
 }
+
+/* Scene first; operating and safety controls remain visible and unchanged. */
+.top {
+  height: 70px;
+  background: linear-gradient(110deg, #111a24, #202a3a);
+  border-bottom-color: #394450;
+  gap: 20px;
+}
+.brand small {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ede8df;
+  padding-left: 18px;
+  border-left: 1px solid #53636e;
+}
+.top .clock {
+  margin-left: auto;
+  min-width: 145px;
+  gap: 0;
+}
+.top .clock strong {
+  font-size: 27px;
+  color: #f2e9df;
+}
+.top .clock small {
+  display: none;
+}
+.top .connection {
+  margin-left: 0;
+}
+main {
+  max-width: 2560px;
+  padding: 14px 22px;
+}
+.notice:not(.fault) {
+  background: #141d27;
+  border-color: #4e6571;
+  color: #a4afb9;
+  font-size: 11px;
+  padding: 7px 12px;
+  margin-bottom: 12px;
+}
+.panorama-panel {
+  border-color: #46515d;
+}
+.panorama-panel .panel-head {
+  background: #18212c;
+}
+.panel {
+  border-radius: 7px;
+}
+.panel-head {
+  padding: 12px 14px;
+}
+.steps {
+  color: #83939e;
+}
+.rover-tag {
+  border-radius: 3px;
+  padding: 4px 10px;
+  font-size: 12px;
+  background: #142731e8;
+  box-shadow: 0 2px 12px #0005;
+}
+.rover-tag.gold {
+  background: #302a20e8;
+}
+.route-tag {
+  background: #17212b99;
+  color: #bdc5c9;
+}
+@media (min-width: 1101px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 14px;
+  }
+  #control-arena {
+    height: calc(100vh - 170px);
+    min-height: 540px;
+    max-height: 1150px;
+  }
+}
+@media (max-width: 1100px) {
+  .top .connection,
+  .top .badge {
+    display: none;
+  }
+  .brand small {
+    font-size: 16px;
+    padding-left: 10px;
+  }
+}
+@media (max-width: 700px) {
+  .top {
+    gap: 10px;
+    height: 62px;
+  }
+  .top .clock {
+    min-width: 110px;
+  }
+  .top .clock strong {
+    font-size: 21px;
+  }
+  .brand {
+    letter-spacing: 1px;
+    font-size: 10px;
+    gap: 7px;
+  }
+  main {
+    padding: 12px;
+  }
+}
 .console .steps {
   display: none;
 }
@@ -846,4 +958,338 @@ main {
 .choices .panel-head,
 .console .panel-head {
   padding: 12px 16px;
+}
+
+/* Exhibition is the default. Admin is a presentation switch, not authentication. */
+[hidden] {
+  display: none !important;
+}
+.venue-hud,
+.venue-player-heading {
+  display: none;
+}
+.venue-tools {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  z-index: 40;
+  display: flex;
+  gap: 8px;
+  opacity: 1;
+}
+.venue-tools > :not(.venue-floor-link) {
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.venue-tools:focus-within > *,
+.venue-tools:hover > *,
+.show-venue-tools .venue-tools > *,
+.admin-mode .venue-tools > * {
+  opacity: 1;
+}
+.venue-tools button,
+.venue-tools .venue-floor-link {
+  background: #121c27c9;
+  backdrop-filter: blur(12px);
+  color: #cbd9e2;
+  border-color: #9cb6c52b;
+  font-size: 12px;
+  padding: 8px 12px;
+}
+.venue-floor-link {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid;
+  border-radius: 3px;
+  min-height: 34px;
+  text-decoration: none;
+}
+.venue-floor-link:hover {
+  text-decoration: none;
+  background: #24333f;
+}
+.admin-mode .top {
+  padding-right: 310px;
+}
+body.exhibition {
+  height: 100dvh;
+  overflow: hidden;
+}
+.exhibition .top,
+.exhibition #notice,
+.exhibition .physical-inspector,
+.exhibition .rosters,
+.exhibition .timeline,
+.exhibition .events,
+.exhibition .panorama-panel > .panel-head,
+.exhibition .camera-tools,
+.exhibition aside > :not(.choices) {
+  display: none;
+}
+.exhibition main {
+  padding: 0;
+  margin: 0;
+  max-width: none;
+}
+.exhibition .workspace,
+.exhibition .scene-column,
+.exhibition aside {
+  display: contents;
+}
+.exhibition .panorama-panel {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.exhibition #control-arena {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 0;
+  max-height: none;
+}
+.exhibition .route-tag {
+  display: none;
+}
+.exhibition .rover-tag {
+  font-size: clamp(13px, 1vw, 24px);
+  border: 1px solid #a8deeb77;
+  background: #111d2bd9;
+  padding: 5px 15px;
+}
+.exhibition .rover-tag.gold {
+  border-color: #e3bd7677;
+}
+.exhibition .venue-hud {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  text-align: center;
+  background: linear-gradient(#07101c55, transparent 16%, transparent 78%, #07101c55);
+}
+#venue-time {
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(26px, 2.2vw, 66px);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+  color: #f1f3f5;
+  text-shadow: 0 2px 16px #000b;
+}
+#venue-phase {
+  position: absolute;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 22px;
+  border: 1px solid #c3d8e833;
+  border-radius: 30px;
+  background: #0a1726ba;
+  font-size: clamp(14px, 1vw, 28px);
+}
+#race-announcement {
+  position: absolute;
+  top: 17%;
+  left: 15%;
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-shadow: 0 3px 22px #000;
+}
+#announcement-title {
+  font-size: clamp(24px, 2.6vw, 68px);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+#announcement-detail {
+  font-size: clamp(13px, 1vw, 27px);
+  color: #d5e2ec;
+}
+[data-team='rover-blue'] #announcement-title,
+[data-team='rover-blue'] #result-title {
+  color: #a8e5ff;
+}
+[data-team='rover-gold'] #announcement-title,
+[data-team='rover-gold'] #result-title {
+  color: #ffe1a1;
+}
+#venue-result {
+  position: absolute;
+  top: 19%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(700px, 80vw);
+  padding: 30px 38px;
+  background: linear-gradient(100deg, #091421dd, #1b2a3bdd, #091421dd);
+  backdrop-filter: blur(12px);
+  border-block: 1px solid #b5cadc55;
+  box-shadow: 0 20px 80px #0005;
+}
+.result-eyebrow {
+  letter-spacing: 0.35em;
+  color: #aabac8;
+  font-size: 12px;
+}
+#result-title {
+  margin: 18px 0;
+  font-size: clamp(28px, 3vw, 66px);
+}
+#result-detail {
+  color: #ccd9e2;
+  font-size: 16px;
+}
+#result-times {
+  font-size: 16px;
+  color: #97adbf;
+  font-variant-numeric: tabular-nums;
+}
+.exhibition .choices {
+  position: fixed;
+  inset: auto 0 24px;
+  z-index: 10;
+  background: none;
+  border: none;
+  pointer-events: none;
+  overflow: visible;
+}
+.exhibition .choices > .panel-head,
+.exhibition .player h3,
+.exhibition .rock-note {
+  display: none;
+}
+.exhibition #players {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 30px;
+  gap: 24px;
+}
+.exhibition .player {
+  display: none;
+  width: clamp(280px, 26vw, 600px);
+  border: 1px solid #8bc7e444;
+  border-top: 2px solid #8bd3f5;
+  border-radius: 10px;
+  padding: 18px;
+  background: linear-gradient(125deg, #0e2334eb, #0a1521e0);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px #0004;
+  pointer-events: auto;
+}
+.exhibition .player.gold {
+  border-color: #cbae6544;
+  border-top-color: #e1b970;
+  background: linear-gradient(125deg, #29251eeb, #141a21e0);
+  margin-left: auto;
+}
+.exhibition .player.offer-choice,
+.exhibition .player.offer-rock {
+  display: block;
+}
+.exhibition .venue-player-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.venue-player-label {
+  font-size: clamp(16px, 1.15vw, 30px);
+  color: #a8e5ff;
+}
+.gold .venue-player-label {
+  color: #ffe1a1;
+}
+.venue-player-hint {
+  font-size: clamp(12px, 0.8vw, 22px);
+  color: #becbd5;
+}
+.exhibition .route-choice,
+.exhibition .rock-btn {
+  display: none;
+}
+.exhibition.opening-choice .opening-routes,
+.exhibition.final-choice .final-routes {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 0;
+}
+.exhibition .offer-rock .rock-btn {
+  display: block;
+}
+.exhibition.final-choice .offer-rock .rock-btn {
+  margin-top: 10px;
+}
+.exhibition .route-choice button,
+.exhibition .rock-btn {
+  padding: 14px 10px;
+  font-size: clamp(14px, 1vw, 26px);
+  background: #1c324059;
+  border-color: #a8cce43b;
+  min-height: 48px;
+}
+.exhibition .route-choice button.selected {
+  background: #72b7d528;
+  border-color: #9edaf3b0;
+  color: #c8edff;
+}
+.exhibition .gold .route-choice button.selected {
+  background: #c6a46528;
+  border-color: #e5c484b0;
+  color: #ffe9bd;
+}
+.exhibition .choice-submitted .final-routes {
+  display: none;
+}
+.exhibition .readonly .player {
+  pointer-events: none;
+}
+.exhibition #world-notice {
+  bottom: auto;
+  top: 12px;
+  left: 16px;
+  font-size: 13px;
+  max-width: 40vw;
+}
+.exhibition #world-notice:empty {
+  display: none;
+}
+@media (max-width: 700px) {
+  .exhibition #players {
+    padding: 0 12px;
+    gap: 10px;
+  }
+  .exhibition .player {
+    width: 48%;
+    padding: 10px;
+  }
+  .exhibition .venue-player-heading {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .exhibition .route-choice button {
+    padding: 10px 3px;
+    font-size: 12px;
+  }
+  #venue-time {
+    top: 18px;
+  }
+  #venue-phase {
+    top: 64px;
+  }
+  .venue-tools {
+    top: 12px;
+    right: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .venue-tools {
+    transition: none;
+  }
 }

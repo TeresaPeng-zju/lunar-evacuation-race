@@ -8,14 +8,14 @@ from mathutils import Vector
 R=Path(__file__).resolve().parents[1];O=R/'dist/assets/floor-arena';A=R/'art/floor-arena'
 S=json.loads((O/'layout.json').read_text());bpy.ops.wm.read_factory_settings(use_empty=True)
 scene=bpy.context.scene;bpy.context.preferences.filepaths.save_version=0
-scene.render.engine='CYCLES';scene.cycles.samples=24;scene.cycles.use_denoising=True
+scene.render.engine='CYCLES';scene.cycles.samples=32;scene.cycles.use_denoising=True
 scene.render.resolution_x=3840;scene.render.resolution_y=2158;scene.render.resolution_percentage=100
 scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_mode='RGB'
-scene.world=bpy.data.worlds.new('Lunar ambient');scene.world.use_nodes=True;scene.world.node_tree.nodes['Background'].inputs[0].default_value=(.15,.19,.23,1);scene.world.node_tree.nodes['Background'].inputs[1].default_value=.32
-scene.view_settings.view_transform='AgX';scene.view_settings.look='AgX - Medium High Contrast';scene.view_settings.exposure=.4
+scene.world=bpy.data.worlds.new('Lunar ambient');scene.world.use_nodes=True;next(n for n in scene.world.node_tree.nodes if n.type=='BACKGROUND').inputs[0].default_value=(.28,.34,.46,1);next(n for n in scene.world.node_tree.nodes if n.type=='BACKGROUND').inputs[1].default_value=.45
+scene.view_settings.view_transform='AgX';scene.view_settings.look='AgX - Medium High Contrast';scene.view_settings.exposure=.65
 camdata=bpy.data.cameras.new('Physical orthographic 59.8 x 33.6 cm');cam=bpy.data.objects.new('CAM_PHYSICAL_TOP',camdata);scene.collection.objects.link(cam)
 cam.location=(29.9,-16.8,80);camdata.type='ORTHO';camdata.ortho_scale=59.8;scene.camera=cam
-light=bpy.data.lights.new('Low directional sun','SUN');light.energy=2.4;light.angle=.065;o=bpy.data.objects.new('Low directional sun',light);scene.collection.objects.link(o);o.rotation_euler=(.48,-.62,-.4)
+light=bpy.data.lights.new('Low directional sun','SUN');light.energy=3.0;light.color=(1,.78,.55);light.angle=.065;o=bpy.data.objects.new('Low directional sun',light);scene.collection.objects.link(o);o.rotation_euler=Vector((55,-80,-72)).to_track_quat('-Z','Y').to_euler()
 
 def pnode(m):return next(n for n in m.node_tree.nodes if n.type=='BSDF_PRINCIPLED')
 def mat(name,color,metal=0,rough=.85):
@@ -28,17 +28,19 @@ for key,socket in [('diff','Base Color'),('rough','Roughness'),('nor_gl','Normal
  n=nodes.new('ShaderNodeTexImage');n.image=bpy.data.images.load(str(path),check_existing=True)
  links.new(texcoord.outputs['UV'],n.inputs['Vector'])
  if key=='diff':
-  bw=nodes.new('ShaderNodeRGBToBW');links.new(n.outputs['Color'],bw.inputs[0]);ramp=nodes.new('ShaderNodeValToRGB');ramp.color_ramp.elements[0].position=.06;ramp.color_ramp.elements[0].color=(.035,.044,.053,1);ramp.color_ramp.elements[1].position=.7;ramp.color_ramp.elements[1].color=(.24,.265,.285,1);links.new(bw.outputs[0],ramp.inputs[0]);links.new(ramp.outputs[0],p.inputs[socket])
+  bw=nodes.new('ShaderNodeRGBToBW');links.new(n.outputs['Color'],bw.inputs[0]);ramp=nodes.new('ShaderNodeValToRGB');ramp.color_ramp.elements[0].position=.06;ramp.color_ramp.elements[0].color=(.055,.052,.05,1);ramp.color_ramp.elements[1].position=.7;ramp.color_ramp.elements[1].color=(.32,.30,.28,1);links.new(bw.outputs[0],ramp.inputs[0]);links.new(ramp.outputs[0],p.inputs[socket])
  elif key=='nor_gl':
   n.image.colorspace_settings.name='Non-Color';nm=nodes.new('ShaderNodeNormalMap');nm.inputs['Strength'].default_value=.75;links.new(n.outputs['Color'],nm.inputs['Color']);links.new(nm.outputs[0],p.inputs[socket])
  else:n.image.colorspace_settings.name='Non-Color';links.new(n.outputs[0],p.inputs[socket])
-metal=mat('Oxidised titanium',(.13,.16,.19),.65,.65);dark=mat('Worn basalt',(.055,.067,.08),0,.94)
+metal=mat('Oxidised titanium',(.25,.26,.27),.48,.65);dark=mat('Worn basalt',(.12,.12,.115),0,.94)
 # Fine regolith bump complements the existing normal map.
 detail=nodes.new('ShaderNodeTexImage');detail.image=bpy.data.images.load(str(R/'art/reference-library/textures/regolith.jpg'),check_existing=True);links.new(texcoord.outputs['UV'],detail.inputs['Vector'])
 bump=nodes.new('ShaderNodeBump');bump.inputs['Strength'].default_value=.28;bump.inputs['Distance'].default_value=.12;links.new(detail.outputs['Color'],bump.inputs['Height']);links.new(nm.outputs[0],bump.inputs['Normal']);links.new(bump.outputs[0],p.inputs['Normal'])
 # Cache actual asset meshes; copy shared mesh data with their original PBR materials.
 cache={}
 def asset(filename, collection, name, x,y,size,rotation=0,z=0):
+ if filename in ['reference-models/research-station.glb','reference-models/outpost-pod.glb']:
+  filename='production/research-station.glb'
  if filename not in cache:
   before=set(scene.objects);bpy.ops.import_scene.gltf(filepath=str(R/'dist/assets'/filename));objs=set(scene.objects)-before;meshes=[o for o in objs if o.type=='MESH'];bpy.context.view_layer.update()
   coords=[o.matrix_world@Vector(v) for o in meshes for v in o.bound_box];lo=Vector(tuple(min(v[i] for v in coords) for i in range(3)));hi=Vector(tuple(max(v[i] for v in coords) for i in range(3)));center=Vector(((lo.x+hi.x)/2,(lo.y+hi.y)/2,lo.z));scale=size/max(hi.x-lo.x,hi.y-lo.y)
@@ -79,6 +81,9 @@ for stage in [1,2,3]:
  for cy in [8.4,25.2]:
   for cx,off,r in ([(5,-6,2.4),(31,6.3,2.8),(56,-6,2)] if stage==1 else [(7,-5,3),(29,-5.8,3.4),(46,5.7,2.9)] if stage==2 else [(7,0,6),(40,-6,3),(47,6.2,3.1)]):
    rr=np.hypot(xy[:,0]-cx,xy[:,1]-(cy+off));h+=.65*np.exp(-((rr-r)/.6)**2)-.4*np.exp(-(rr/(r*.75))**4)
+ # Sharpen existing border forms into short benches; leave the same driving mask.
+ f=np.abs(h)/.28;level=np.floor(f);u=np.clip((f-level-.16)/.68,0,1)
+ h=np.sign(h)*(level+u*u*(3-2*u))*.28
  margin=np.minimum(local,16.8-local);h+=np.exp(-((margin-.4)/.7)**2)*(.4+.15*np.sin(xy[:,0]*.8))
  t=np.clip((d-3.7)/1.3,0,1);h*=t*t*(3-2*t)
  # Fine impact scars are printed surface detail, not physical obstacles.
@@ -117,9 +122,27 @@ for stage in [1,2,3]:
   # Curated rubble clusters at the sector perimeter, never random full-map scatter.
   for k,(px,py) in enumerate([(2,3.8),(10,.5),(24,15.7),(37,.5),(49,15.8),(58,13.6)]):
    for j in range(3):asset('models/meteorite.glb',c,f'Rubble_{stage}_{id}_{k}_{j}',px+j*.55,base+py+.12*math.sin(j*3),.45+j*.16,rotation=j*1.8,z=.02)
+# Match the approved material families without discarding GLB texture connections.
+for material in bpy.data.materials:
+ if not material.use_nodes:continue
+ nodes=material.node_tree.nodes;links=material.node_tree.links
+ bs=next((n for n in nodes if n.type=='BSDF_PRINCIPLED'),None)
+ if not bs:continue
+ name=material.name;factor=None
+ if name.startswith('Weathered titanium'):factor=(1.9,1.78,1.6);metallic=.48;rough=.61
+ elif name.startswith(('Graphite steel','Carbon graphite')):factor=(.15,.17,.2);metallic=.45;rough=.72
+ elif name.startswith(('Faded ceramic paint','Ceramic shell')):factor=(.57,.54,.49);metallic=.16;rough=.69
+ elif name.startswith('Fractured basalt'):factor=(1.18,1.1,1.02);metallic=0;rough=.96
+ if factor:
+  if bs.inputs['Base Color'].links:
+   original=bs.inputs['Base Color'].links[0].from_socket
+   mix=nodes.new('ShaderNodeMixRGB');mix.blend_type='MULTIPLY';mix.inputs[0].default_value=1;mix.inputs[2].default_value=(*factor,1)
+   links.new(original,mix.inputs[1]);links.new(mix.outputs[0],bs.inputs['Base Color'])
+  else:bs.inputs['Base Color'].default_value=(*factor,1)
+  bs.inputs['Metallic'].default_value=metallic;bs.inputs['Roughness'].default_value=rough
 for c in collections:c.hide_render=True
 bpy.ops.file.pack_all();collections[0].hide_render=False;bpy.ops.wm.save_as_mainfile(filepath=str(A/'moonfall-physical-arena.blend'))
 for i,c in enumerate(collections):
  for other in collections:other.hide_render=other!=c
  scene.render.filepath=str(O/f'stage-{i+1}.png');bpy.ops.render.render(write_still=True);print('FLOOR_PLATE_COMPLETE',i+1,flush=True)
-(O/'render-manifest.json').write_text(json.dumps({'source':'Blender Cycles, existing GLB assets + Moon04 PBR','orthographic':True,'board_cm':[59.8,33.6],'resolution':[3840,2158],'stages':3,'map_revision':S['map_revision'],'dynamic_overlay':'canonical centimeter paths, gates, beacon, rock, quake, finish'},indent=2))
+(O/'render-manifest.json').write_text(json.dumps({'art_revision':'moonfall-unified-2026-11-24','source':'Blender Cycles, approved pressure-hull family + existing industrial GLBs + Moon04 PBR','orthographic':True,'board_cm':[59.8,33.6],'resolution':[3840,2158],'stages':3,'map_revision':S['map_revision'],'dynamic_overlay':'canonical centimeter paths, gates, beacon, rock, quake, finish'},indent=2))

@@ -7,7 +7,7 @@ async (page) => {
     (await context.newPage());
   const errors = [];
   for (const p of [control, floor]) p.on('pageerror', (e) => errors.push(e.message));
-  await control.goto(base + '/sandbox.html');
+  await control.goto(base + '/sandbox.html?admin=1');
   await control.waitForFunction(
     () => moonfallSandbox.controller() && moonfallSandbox.world()?.ready,
     null,

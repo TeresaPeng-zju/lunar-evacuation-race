@@ -1,0 +1,51 @@
+{
+  "source": "art/dual-screen/moonfall-dual-screen.blend",
+  "facility": "LAB_W",
+  "anchor_before": [
+    -54.0,
+    -16.723979949951172,
+    3.30433988571167
+  ],
+  "anchor_after": [
+    -54.0,
+    -16.723979949951172,
+    3.30433988571167
+  ],
+  "protected_objects": 196,
+  "protected_geometry_unchanged": true,
+  "terrain_vertices_changed": 5589,
+  "maximum_visual_height_change": 8.91508252890928,
+  "road_clearance_world_units": 3.5,
+  "terrain_bounds_xy": [
+    [
+      -78,
+      -49
+    ],
+    [
+      -46,
+      1
+    ]
+  ],
+  "new_facility_parts": [
+    "LAB refined / pressure hull",
+    "LAB refined / continuous roof",
+    "LAB refined / lower skirt",
+    "LAB refined / structural portal",
+    "LAB refined / structural portal.001",
+    "LAB refined / rear service volume",
+    "LAB refined / airlock body",
+    "LAB refined / airlock recess",
+    "LAB refined / airlock door",
+    "LAB refined / entry light",
+    "LAB refined / entry threshold",
+    "LAB refined / window recess",
+    "LAB refined / glazing",
+    "LAB refined / interior strip",
+    "LAB refined / window mullion",
+    "LAB refined / window mullion.001",
+    "LAB refined / side service inset",
+    "LAB refined / side service cover",
+    "LAB refined / antenna plinth"
+  ],
+  "scope": "local review only; production assets and all map/protocol files untouched"
+}

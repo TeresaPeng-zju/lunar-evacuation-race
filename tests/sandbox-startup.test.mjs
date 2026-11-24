@@ -119,7 +119,7 @@ test(
   async (t) => {
     const service = await start(t);
     const home = await fetch(service.base);
-    assert.match(await home.text(), /硬件联调沙盒/);
+    assert.match(await home.text(), /月球撤离赛/);
     for (const path of [
       '/index.html',
       '/display.html',

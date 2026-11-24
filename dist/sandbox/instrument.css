@@ -1,0 +1,409 @@
+/* Live-game instruments. Scene materials, cameras and physical display are untouched. */
+:root {
+  font-family: 'PingFang SC', 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif;
+  --instrument-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+}
+.player {
+  --team: #95cbdc;
+  --team-rgb: 149, 203, 220;
+}
+.player.gold {
+  --team: #dabb82;
+  --team-rgb: 218, 187, 130;
+}
+.player button:focus-visible {
+  outline: 2px solid var(--team);
+  outline-offset: 3px;
+}
+.player button:hover:not(:disabled) {
+  border-color: var(--team);
+}
+.player.gold .route-choice button.selected {
+  color: #ecdbb8;
+  border-color: #bfa16a;
+  background: #302c23;
+}
+.instrument-number,
+[data-option]::before,
+#venue-time,
+#result-times,
+.clock strong {
+  font-family: var(--instrument-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+}
+.exhibition .choices {
+  bottom: 20px;
+}
+.exhibition #players {
+  padding: 0 24px;
+  gap: 20px;
+}
+.exhibition .player,
+.exhibition .player.gold {
+  width: clamp(320px, 23vw, 460px);
+  padding: 10px 12px;
+  border: 1px solid #4c565d;
+  border-top: 1px solid #4c565d;
+  border-radius: 3px;
+  background: #171c20f5;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px #0003;
+  position: relative;
+}
+.exhibition .player::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 12px;
+  width: 26px;
+  height: 2px;
+  background: var(--team);
+}
+.exhibition .venue-player-heading {
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 8px;
+  min-height: 20px;
+}
+.venue-player-label,
+.gold .venue-player-label {
+  font-size: clamp(14px, 0.82vw, 20px);
+  font-weight: 400;
+  color: #d8e0e5;
+  white-space: nowrap;
+}
+.instrument-number {
+  font-size: 0.78em;
+  margin-right: 5px;
+  color: var(--team);
+  letter-spacing: 0.025em;
+}
+.venue-player-hint {
+  font-size: clamp(11px, 0.64vw, 15px);
+  color: #a8b3bc;
+  font-weight: 400;
+}
+.exhibition.opening-choice .opening-routes,
+.exhibition.final-choice .final-routes {
+  gap: 8px;
+}
+.exhibition .player .route-choice button,
+.exhibition .player .rock-btn {
+  min-height: 44px;
+  padding: 8px 12px;
+  margin: 0;
+  border: 1px solid #49545d;
+  border-radius: 2px;
+  background: #20272c;
+  color: #c6d0d8;
+  font-size: clamp(14px, 0.8vw, 19px);
+  font-weight: 400;
+  text-align: left;
+  line-height: 1.3;
+  transition:
+    background-color 120ms,
+    border-color 120ms,
+    color 120ms;
+}
+.exhibition [data-option]::before {
+  content: attr(data-option);
+  display: inline-block;
+  margin-right: 12px;
+  font-size: 0.75em;
+  color: #8b9ba8;
+}
+.exhibition .player .route-choice button:hover:not(:disabled),
+.exhibition .player .rock-btn:hover:not(:disabled) {
+  background: #2d353b;
+  border-color: var(--team);
+  color: #edf1f4;
+}
+.exhibition .player .route-choice button.selected {
+  color: var(--team);
+  background: rgba(var(--team-rgb), 0.1);
+  border-color: rgba(var(--team-rgb), 0.65);
+  box-shadow: inset 2px 0 0 var(--team);
+}
+.exhibition .player .route-choice button.selected::before {
+  color: var(--team);
+}
+.exhibition .player button:focus-visible {
+  outline: 2px solid var(--team);
+  outline-offset: 3px;
+}
+.exhibition .player .route-choice button:disabled,
+.exhibition .player .rock-btn:disabled {
+  opacity: 1;
+  color: #87939b;
+  background: #191f24;
+  border-color: #353f47;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.exhibition .player button:active:not(:disabled) {
+  background: rgba(var(--team-rgb), 0.18);
+}
+.exhibition.final-choice .player.offer-rock .rock-btn {
+  margin-top: 8px;
+}
+.exhibition .choice-submitted .venue-player-heading {
+  margin-bottom: 0;
+}
+#venue-time {
+  top: 22px;
+  font-size: clamp(26px, 1.7vw, 42px);
+  letter-spacing: 0.035em;
+  color: #dce5eb;
+}
+#venue-phase {
+  top: 75px;
+  border-radius: 2px;
+  padding: 6px 14px;
+  font-size: clamp(13px, 0.8vw, 19px);
+  background: #171c20e8;
+  border-color: #57636c;
+}
+#race-announcement {
+  top: 15%;
+  gap: 8px;
+}
+#announcement-title {
+  font-size: clamp(22px, 1.7vw, 36px);
+  font-weight: 400;
+  letter-spacing: 0.025em;
+}
+#announcement-detail {
+  font-size: clamp(13px, 0.85vw, 18px);
+  font-weight: 400;
+}
+#venue-result {
+  width: min(540px, 80vw);
+  padding: 22px 28px;
+  background: #171c20ed;
+  border-color: #647078;
+  box-shadow: 0 10px 30px #0003;
+}
+#result-title {
+  font-size: clamp(26px, 2vw, 40px);
+  font-weight: 400;
+  margin: 14px 0;
+}
+#result-detail,
+#result-times {
+  font-size: 14px;
+  font-weight: 400;
+}
+.result-eyebrow {
+  letter-spacing: 0.15em;
+}
+.instrument-leaders {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+.instrument-leaders path {
+  fill: none;
+  stroke-width: 1;
+  opacity: 0.7;
+}
+.world-label.instrument-label {
+  transform: none;
+  padding: 2px 4px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  background: none;
+  color: #d3dde4;
+  text-shadow: 0 1px 2px #080e1480;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+.exhibition .world-label.instrument-label.rover-tag {
+  padding: 2px 5px;
+  font-size: 12px;
+  line-height: 1.4;
+  background: #172028c9;
+  border: none;
+  border-left: 2px solid #95cbdc;
+  border-radius: 1px;
+  color: #c4dfeb;
+  box-shadow: none;
+}
+.exhibition .world-label.instrument-label.rover-tag.gold {
+  border-color: #dabb82;
+  color: #e1cfaa;
+  background: #20211fc9;
+}
+@media (min-width: 2400px) {
+  .world-label.instrument-label,
+  .exhibition .world-label.instrument-label.rover-tag {
+    font-size: 15px;
+  }
+}
+@media (max-width: 700px) {
+  .exhibition #players {
+    padding: 0 10px;
+    gap: 10px;
+  }
+  .exhibition .player,
+  .exhibition .player.gold {
+    width: calc(50% - 5px);
+    padding: 9px;
+  }
+  .exhibition .venue-player-heading {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .exhibition .player .route-choice button {
+    padding: 7px;
+    font-size: 13px;
+  }
+  .exhibition [data-option]::before {
+    margin-right: 5px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .exhibition .player button {
+    transition: none;
+  }
+}
+/* Visible both at the top-right and at the start of the admin control panel. */
+.exhibition [data-quick-start] {
+  display: none;
+}
+.admin-mode .quick-start-primary,
+.admin-mode .venue-tools .quick-start-primary {
+  background: #b8d6d9;
+  color: #14252b;
+  border: 1px solid #d2e7e9;
+  font-size: 14px;
+  font-weight: 500;
+  min-height: 40px;
+  border-radius: 3px;
+}
+.admin-mode .quick-start-primary:hover:not(:disabled) {
+  background: #d0e5e7;
+}
+.console > .quick-start-primary {
+  width: calc(100% - 24px);
+  margin: 12px 12px 0;
+}
+.quick-start-hint {
+  margin: 7px 12px 12px;
+  color: #9dadb8;
+  font-size: 11px;
+}
+.admin-mode .top {
+  padding-right: 440px;
+}
+
+/* A short clockwise trace, confined to the physical panel perimeter. */
+.panel-flow {
+  display: none;
+}
+.exhibition .panel-flow {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--team);
+}
+.panel-flow rect {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.panel-flow rect:not(.panel-confirm) {
+  visibility: hidden;
+  stroke-dasharray: 2 98;
+  stroke-dashoffset: var(--offset);
+}
+.exhibition .awaiting-choice .panel-flow rect:not(.panel-confirm) {
+  visibility: visible;
+  animation: panel-orbit 5.6s linear infinite;
+}
+.panel-flow .panel-confirm {
+  opacity: 0;
+}
+.exhibition .selection-confirmed {
+  border-color: rgba(var(--team-rgb), 0.45);
+}
+@keyframes panel-orbit {
+  from {
+    stroke-dashoffset: var(--offset);
+  }
+  to {
+    stroke-dashoffset: var(--end-offset);
+  }
+}
+.venue-tools {
+  gap: 4px;
+  align-items: center;
+}
+.venue-tools .venue-icon {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 6px;
+  border-radius: 2px;
+  border: 1px solid #82949e42;
+  font-size: 18px;
+  line-height: 18px;
+  opacity: 0.65;
+}
+.venue-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+}
+.venue-tools .venue-icon:focus-visible {
+  outline: 2px solid #a4c3ce;
+  outline-offset: 3px;
+  opacity: 1;
+}
+.venue-tools .venue-icon::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  padding: 5px 8px;
+  background: #171c20;
+  border: 1px solid #49545d;
+  color: #cbd9e2;
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+}
+.venue-tools .venue-icon:hover::after,
+.venue-tools .venue-icon:focus-visible::after {
+  opacity: 1;
+}
+.venue-tools .venue-floor-link {
+  min-height: 32px;
+  border-radius: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .exhibition .awaiting-choice .panel-flow rect:not(.panel-confirm) {
+    animation: none;
+    visibility: hidden;
+  }
+  .exhibition .awaiting-choice {
+    border-color: rgba(var(--team-rgb), 0.65);
+  }
+}

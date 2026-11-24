@@ -16,7 +16,9 @@
     "vendor": "node tools/vendor_three.mjs",
     "sandbox": "node sandbox/server.mjs",
     "sandbox:hardware": "node sandbox/server.mjs --hardware",
-    "sandbox:mock": "node sandbox/mock-client.mjs"
+    "sandbox:mock": "node sandbox/mock-client.mjs",
+    "assets:build": "node tools/build_art.mjs",
+    "assets:station-review": "node tools/build_art.mjs --station-review"
   },
   "dependencies": {
     "three": "0.180.0",

@@ -1,5 +1,6 @@
 {
-  "source": "Blender Cycles, existing GLB assets + Moon04 PBR",
+  "art_revision": "moonfall-unified-2026-11-24",
+  "source": "Blender Cycles, approved pressure-hull family + existing industrial GLBs + Moon04 PBR",
   "orthographic": true,
   "board_cm": [
     59.8,
